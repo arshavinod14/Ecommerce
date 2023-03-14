@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}
+Edit Sub-Category
+{% endblock %}
+{% block content %}
+
+
+<div class="login">
+    <h5 class="text-center">Edit Details</h5>
+    <form class="needs-validation" method="post">  
+        {% csrf_token %}
+        <div class="form-group"> 
+
+            <label class="form-label">Edit Name</label>
+            <input class="form-control" type="text"  name="name" value="{{subcategory.name}}">
+        </div>
+        <input class="btn btn-secondary" type="submit" value="Update"><br><br>
+    </form>
+</div>
+{% endblock %}

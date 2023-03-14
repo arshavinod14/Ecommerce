@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}
+Edit Category
+{% endblock %}
+{% block content %}
+
+
+<div class="login">
+    <h5 class="text-center">Edit Details</h5>
+    <form class="needs-validation" method="post">  
+        {% csrf_token %}
+        <div class="form-group"> 
+
+            <label class="form-label">Edit Name</label>
+            <input class="form-control" type="text"  name="name" value="{{category.name}}">
+
+            <label class="form-label" for="email">Edit Offer</label>
+            <input class="form-control" type="number" name = "offer" value="{{category.offer}}">
+        </div>
+        
+        <input class="btn btn-secondary" type="submit" value="Update"><br><br>
+    </form>
+</div>
+{% endblock %}

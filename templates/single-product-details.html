@@ -1,0 +1,200 @@
+{%extends 'base1.html'%}
+{%load static%}
+{% block content %}
+
+<!-- {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %} -->
+
+
+<!-- <script src="{% static 'js/js-image-zoom.js' %}" type="application/javascript"></script>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css"> -->
+    <!-- <style>
+
+    #container {
+        margin-top: 85px;
+    }
+
+    #container.onehundredpercent {
+        width: 350px;
+        height: 250px;
+    }
+
+    #container.onehundredpercent img {
+        max-width: 100%;
+    }
+</style> -->
+
+    <section class="single_product_details_area d-flex align-items-center ">
+    
+    <!-- Single Product Thumb -->
+    
+    <div class="single_product_thumb">
+        <div class="product_thumbnail_slides owl-carousel">
+            <img  src="/media/{{product.image1}}" alt="product_image">
+            <img  src="/media/{{product.image2}}" alt="product_image">
+            <img  src="/media/{{product.image3}}" alt="product_image">
+            <img  src="/media/{{product.image4}}" alt="product_image">
+        </div>
+    </div>
+
+
+    <!-- Single Product Description -->
+    <div class="single_product_desc clearfix" style="margin-bottom: 120px;">
+        <span>{{product.brand}}</span>
+        
+            <h2>{{product.name}}</h2>
+
+        <!-- <p class="product-price"><span class="old-price">{{product.price}}</span> $49.00</p> -->
+        <p class="product-price">{{product.price}}</p>
+        <p class="product-desc">{{product.description}}</p>
+        <br>
+        <!-- Form -->
+        <form>
+            <h6>Select Size:</h6>
+            <select name="size" id="size">
+                {% for size in sizes %}
+                <option value="{{ size.id }}">{{ size.size }}</option>
+            {% endfor %}
+            </select>
+            <br><br>
+            <!-- Cart & Favourite Box -->
+            <div  style="margin-top:50px;" class="cart-fav-box d-flex align-items-center">
+                <!-- Cart -->
+                <button  type="submit" name="addtocart" value="5" class="btn essence-btn"><a href="{%url 'cart' product.id %}">Add to cart</a></button>
+                <!-- Favourite -->
+                <div class="product-favourite ml-4">
+                
+                    <a href="#" class="favme fa fa-heart"></a>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- <script>
+    var currentImage = 1;
+    var defaultOptions = {
+        zoomWidth: 500,
+        img: "1.jpg",
+        offset: {vertical: 0, horizontal: 10}
+    };
+    var options;
+    resetOptions();
+
+    var container = document.getElementById('container');
+    var optionsHeader = document.getElementById('zoomOptions');
+    var killButton = document.getElementById('kill');
+    var setupButton = document.getElementById('setup');
+    var resetButton = document.getElementById('reset');
+    optionsHeader.innerHTML = 'Options: ' + JSON.stringify(options);
+    window.imageZoom = new ImageZoom(container, options);
+
+    function resetOptions() {
+        options = JSON.parse(JSON.stringify(defaultOptions)); // widely supported deep copy
+    }
+
+    function updateButtonStatus() {
+        if (window.imageZoom) {
+            killButton.disabled = false;
+            resetButton.disabled = false;
+            setupButton.disabled = true;
+        } else {
+            killButton.disabled = true;
+            resetButton.disabled = true;
+            setupButton.disabled = false;
+        }
+
+    }
+
+    function killImageZoom(imageZoom) {
+        window[imageZoom].kill();
+        delete window[imageZoom];
+        updateButtonStatus();
+    }
+
+    function setupImageZoom(imageZoom) {
+        window[imageZoom]= new ImageZoom(container, options);
+        updateButtonStatus();
+
+    }
+
+    function resetImageZoom(imageZoom) {
+        window[imageZoom].kill();
+        window[imageZoom]= new ImageZoom(container, options);
+    }
+
+    function changeScale() {
+        var scale = document.querySelector('input[name = "Scale"]:checked').value;
+        if (scale > 0) {
+            options.scale = scale;
+        } else {
+            delete options.scale;
+        }
+        optionsHeader.innerHTML = 'Options: ' + JSON.stringify(options);
+        killImageZoom('imageZoom');
+        window.imageZoom = new ImageZoom(container, options);
+        updateButtonStatus();
+    }
+
+    function changeZoomPosition() {
+        var zoomPosition = document.querySelector('input[name = "ZoomPosition"]:checked').value;
+        if (zoomPosition !== 'default') {
+            options.zoomPosition = zoomPosition;
+        } else {
+            delete options.zoomPosition;
+        }
+        optionsHeader.innerHTML = 'Options: ' + JSON.stringify(options);
+        killImageZoom('imageZoom');
+        window.imageZoom = new ImageZoom(container, options);
+        updateButtonStatus();
+    }
+
+    function changeFillContainerSetting() {
+        var fillContainer = document.querySelector('input[name="FillContainer"]').checked;
+        if (fillContainer === true) {
+            document.getElementById('container').classList.add('onehundredpercent');
+            delete options.width;
+            delete options.height;
+            delete options.zoomWidth;
+        } else {
+            document.getElementById('container').classList.remove('onehundredpercent');
+            resetOptions();
+        }
+        optionsHeader.innerHTML = 'Options: ' + JSON.stringify(options);
+        resetImageZoom('imageZoom');
+    }
+
+    function changeImage(imageZoom) {
+        currentImage = currentImage === 1 ? 2 : 1;
+        options.img = currentImage + '.jpg';
+        resetImageZoom(imageZoom);
+    }
+</script> -->
+
+{%endblock%}
+
+<!-- 
+<script>
+    $("#productSize").change(function(){
+        var selectedSize = $(this).val();
+        var productSizes = {{product.sizes.all|json_script:"sizes" }};
+        var sizeAvailable = false;
+        for (var i = 0; i < productSizes.length; i++) {
+            if (productSizes[i] == selectedSize) {
+                sizeAvailable = true;
+                break;
+            }
+        }
+            else {
+                    alert("Selected size is not available for this product");
+        }
+    });
+</script> -->
+
+
+

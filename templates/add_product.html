@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    label
+    {
+        margin-right: 100%;
+    }
+</style>
+
+<br><br>
+<div class="section">
+<h3> Add Products</h3>
+<form method="post" class="form-horizontal" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form.as_p}}
+
+    <!-- other form fields -->
+    <button type="submit" class="btn btn-primary">Add Product</button>
+</form>
+
+<script>
+    function fetchSubcategories(categoryId) {
+        $.ajax({
+            url: "{% url 'fetch_subcategories' %}",
+            data: {
+                'category_id': categoryId
+            },
+            dataType: 'json',
+            success: function(data) {
+                var subcategorySelect = $("#subcategory");
+                subcategorySelect.empty();
+                $.each(data, function(key, value) {
+                    subcategorySelect.append($("<option></option>")
+                        .attr("value", value.id).text(value.name));
+                });
+            }
+        });
+    }
+    
+    </script>
+
+{% endblock %}
