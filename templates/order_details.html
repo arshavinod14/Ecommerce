@@ -1,0 +1,105 @@
+{% extends 'base1.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+  <div class="container">
+
+    {% if order %}
+      {% for od in order %}
+        <div class="d-flex justify-content-between align-items-center py-3">
+        </div>
+        <!-- Main content -->
+        <div class="row">
+          <div class="col-lg-8">
+            <!-- Details -->
+            <div class="card mb-4">
+              <div class="card-body">
+                <div class="mb-3 d-flex justify-content-between">
+                  <div>
+                    <span class="me-3">{{ od.order_at }}</span>
+                    <span class="me-3">#{{ od.order_id }}</span>
+                  {% if od.status %}
+                    {% if od.delivery_status == 'P' %}
+                      <span class="badge rounded-pill bg-info">Pending</span>
+                    {% else %}
+                      <span class="badge rounded-pill bg-info">Delivered</span>
+                    {% endif %}
+                  {%else%}
+                    <span class="badge rounded-pill bg-info">Canceled</span>
+                  {%endif%}
+
+                  </div>
+                  <div class="d-flex">
+                  <a style="color: blue; text-decoration:underline;" href="{% url 'invoice' %}"><span class="text">Invoice</span></a></button>
+                  </div>
+                </div>
+                <table class="table table-borderless">
+                  <tbody>
+                    {% for item in od.items.all %}
+                      <tr>
+                        <td>
+                          <div class="d-flex mb-2">
+                            <div class="flex-shrink-0">
+                              <img src="{{ item.product.image1.url }}" alt="{{ item.product.name }}" width="35" class="img-fluid">
+                            </div>
+                            <div class="flex-lg-grow-1 ms-3">
+                              <p style="margin-left: 20px;" class="text-reset">{{ item.product.name }}</p>
+                              <!-- <span class="small">Color: Black</span> -->
+                            </div>
+                          </div>
+                        </td>
+                        <td>{{ item.quantity }}</td>
+                        <td class="text-end">{{ item.product_price }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="2">Mode of Payment</td>
+                      <td class=" text-end">{{ od.payment_method }}</td>
+                    </tr>
+                    <tr class="fw-bold">
+                      <td colspan="2">TOTAL</td>
+                      <td class="text-end">{{ od.total_price }}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+                <div class="d-flex justify-content-end">
+                  <button onclick = "return confirm('Are you sure you want to cancel the order?')" class="btn btn-danger me-3"><a href="{% url 'order_cancel' od.id %}" class="text-white" style="text-decoration:none;">Cancel Order</a></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+                  <div class="row">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                              <div class="mb-3 d-flex justify-content-between">
+                                <div>
+                                      <span span class="me-3">|-------------------NO ORDERS FOUND!-----------------------|</span>
+                                      <span class="badge rounded-pill bg-info"></span>
+                                </div>
+                              </div>
+                            </div>
+                        </div>
+                  </div>
+                </div>
+            </div>
+      </div>
+  </div>
+        
+  </div>
+  {%endif%}
+</div>
+</div>
+<br><br>
+
+<br><br>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+{%endblock%}        

@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from store.models import Account
 from product.models import Product,Category,SubCategory
+from order.models import Order,OrderItem
 from django.contrib.auth.models import User
 from .forms import *
 from product.forms import *
@@ -11,6 +12,7 @@ from django.http import HttpResponse
 from django.contrib.postgres.search import SearchVector
 from django.views.decorators.cache import never_cache
 from django.http import JsonResponse
+from django.db.models import Sum
 # Create your views here.
 
 @never_cache
@@ -41,7 +43,24 @@ def adminLogin(request):
 def adminHome(request):
     if request.user.is_authenticated and request.user.is_staff:
         print('Testing')
-        return render(request, 'adminhome.html')
+        order = OrderItem.objects.all()
+        product = Product.objects.all()
+        customers = Account.objects.all()
+    
+        order = order.count()
+        product = product.count()
+        customers = customers.count()
+
+        total_price = Order.objects.aggregate(Sum('total_price'))['total_price__sum']
+
+        context = {
+                'order_count':order,
+                'total_price': total_price,
+                'product_count':product,
+                'customers_count': customers,  
+                }
+        
+        return render(request, 'adminhome.html',context)
     return redirect(adminLogin)
     # if request.user.is_authenticated and request.user.is_staff:
     #     records = Account.objects.all()
@@ -233,3 +252,19 @@ def adminLogout(request):
         messages.success(request, 'Logged Out Successfully')
         return redirect(adminLogin)
     return render(request,'admin_login.html')
+
+
+
+def order_management(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        order = Order.objects.all()
+        order_items = OrderItem.objects.all()
+        print("orderitems-------->",order_items)
+        print(order)
+        # if request.method == 'GET'and request.GET.get('search') is not None:
+        #     print(request.GET)
+        #     order = Order.objects.annotate(search=SearchVector('user.name')).filter(search=request.GET.get('search'))
+        #     return render(request, 'order_management.html',{'order':order})
+
+        return render(request, 'order_management.html',{'order':order})
+    return redirect(adminLogin)

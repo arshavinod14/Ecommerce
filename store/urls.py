@@ -1,6 +1,5 @@
 from django.urls import path
 from .import views
-
 urlpatterns = [
     path("", views.index,name = 'home'), 
     path("login/",views.loginacc,name='login'),
@@ -10,5 +9,10 @@ urlpatterns = [
     path("otp_verify/",views.otp_verify,name='otp_verify'),
     
     path("check/",views.check,name='check'),
+    path("address/",views.address,name='address'),
+    
+
+    
+    
     
 ]

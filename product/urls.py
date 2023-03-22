@@ -12,7 +12,10 @@ urlpatterns = [
 
     path("update_quantity/",views.update_quantity,name='update_quantity'),
     path('check_stock/', views.check_stock, name='check_stock'),
-
     path('check_out/', views.check_out, name='check_out'),
+    path('invoice/', views.invoice, name='invoice'),
+
+
+    
 
 ]

@@ -6,6 +6,10 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import Sum
 from decimal import Decimal
+from store.models import Address
+from order.models import Order,OrderItem
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_control
 from django.views.decorators.csrf import csrf_exempt
 
 def product_view(request):
@@ -29,7 +33,9 @@ def single_product(request, id):
     product = Product.objects.get(id=id)
     sizes = Size.objects.all()
     form = CartItemsForm()
-    context = {'product': product, 'sizes': sizes, 'form': form}
+    cart_items = CartItems.objects.filter(user=request.user)
+    count = cart_items.count()
+    context = {'product': product, 'sizes': sizes, 'form': form,'count':count}
     
     if request.method == 'POST':
         size_id = request.POST.get('size')
@@ -107,6 +113,56 @@ def check_stock(request):
     data = {'stock_level': stock_level}
     return JsonResponse(data)
 
-
+@login_required
 def check_out(request):
-    return render(request,'checkout.html')
+    ad = Address.objects.filter(user=request.user)
+    selected_address = None
+    selected_address_id = None
+    total_price = 0
+
+
+    cart_items = CartItems.objects.filter(user=request.user)
+    for item in cart_items:
+        total_price = total_price + item.unit_price * item.quantity
+    request.session['total_price'] = str(total_price)
+
+    if request.method == 'POST':
+        selected_address_id = request.POST.get('selected_address_id')
+        if selected_address_id:
+            request.session['address_id'] = selected_address_id
+            selected_address = Address.objects.get(id=selected_address_id)
+
+    else:
+        address_id = request.session.get('address_id')
+        if address_id:
+            try:
+                selected_address = Address.objects.get(id=address_id)
+            except Address.DoesNotExist:
+                selected_address = None
+
+        total_price = request.session.get('total_price')
+        if total_price:
+            total_price = Decimal(total_price)
+
+    cart_items = CartItems.objects.filter(user=request.user)
+    count = cart_items.count()
+
+    context = {'cartitems': cart_items, 'total_price': total_price, 'count': count, 'ad': ad, 'selected_address': selected_address}
+    return render(request, 'checkout.html', context)
+
+
+
+
+@login_required
+def invoice(request):
+    order = Order.objects.filter(id=id)
+    order = Order.objects.get(id=id)
+    # adds = Billing_address.objects.filter(order_id_Ref=order.order_id)
+    # try:
+        # pay =Payment.objects.get(order_id=order.order_id)
+    # except:
+    #     pay = {'order_id':order.order_id,'created_at':order.order_at}
+    # return render(request, 'invoice.html', context={'order_ins': order_ins, 'adds': adds,'pay':pay})
+    return render(request, 'invoice.html')
+
+

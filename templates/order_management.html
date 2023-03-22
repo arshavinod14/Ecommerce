@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Order Management</h3>
+<br><br>
+<div class="container-fluid cont">
+    <h6>Manage Orders</h6>
+    
+</div>
+
+<br><br>
+
+<div>
+{% if order %}
+<table class="table table-bordered table-dark">
+    <thead>
+    <tr>
+        <th scope="col">id</th>
+        <th scope="col">User</th>
+        <th scope="col">Product</th>
+        <th scope="col">Price</th>
+        <th scope="col">Payment Method</th>
+        <th scope="col">Delivery Status</th>
+        <th scope="col">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for od in order %}
+        <tr>
+        <th scope="row">{{od.id}}</th>
+        <td>{{od.user.name}}</td>
+        <td>
+            {% for item in od.items.all %}
+                {{ item.product.name }} ({{ item.quantity }})
+                {% if not forloop.last %}<br>{% endif %}
+            {% endfor %}
+        </td>
+        <td>{{od.total_price}}</td>
+            {% if od.payment_method == '1' %}
+            <td>Pending</td>
+            {%else%}
+            {%if od.payment_status%}
+                <td>Done</td>
+            {%else%}
+            <td>COD</td>
+            {%endif%}
+            {%endif%}
+            <td>{{od.delivery_status}}</td>
+                
+        <td>{% if od.status %}
+            <a class="text-white bg-danger" style="text-decoration: none;" href="{% url 'order_cancel' od.id %}">Cancel</a> {% else %} Cancelled {% endif %}
+        </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<h4 class='text-center alert alert-warning'>No records found </h4>
+{% endif %}
+</div>
+
+
+
+
+{% endblock %}
