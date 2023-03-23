@@ -1,26 +1,18 @@
 import os
-import random
-from dotenv import load_dotenv
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login, logout
-# from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import Account,Address
-import product.views
-from product.models import Product,Category,SubCategory,CartItems
+from product.models import CartItems
 from .forms import *
-from django.contrib.auth.hashers import check_password
-from django.forms import ValidationError
-from django.contrib.auth.decorators import login_required
 from AdminPanel.views import adminHome
-from django.conf import settings
-from twilio.rest import Client
-from twilio.rest import TwilioException
+from twilio.rest import Client,TwilioException
 from django.views.decorators.cache import cache_control
 from django.core.exceptions import ObjectDoesNotExist
 
 num1 = 0
 phone = 0
+
 
 
 
@@ -38,10 +30,6 @@ def index(request):
         
 @cache_control(no_cache=True, must_revalidate=True)
 def loginacc(request):
-    # if request.user.is_authenticated and request.user.is_staff :
-    #     #print(request.user)
-    #     return redirect(adminHome)
-
     if request.user.is_authenticated:
         print(request.user)
         return redirect(index)
@@ -79,9 +67,7 @@ def otp(request):
         if Account.objects.filter(phone=phone).exists():
 
             print(phone)
-            # account_sid = 'ACe1027a6fa785c6a6c4a87e4926ab8c52'
             account_sid = os.getenv('ACCOUNT_SID')
-            # auth_token = 'b49abeb8b8fa38c0a2a0542adfcc4523'
             auth_token = os.getenv('AUTH_TOKEN')
             service_sid = os.getenv('SERVICE_SID')
             print(account_sid,auth_token)
