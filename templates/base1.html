@@ -63,43 +63,35 @@
                                 <div class="megamenu">
                                     <ul class="single-mega cn-col-4">
                                         <li class="title">Women's Collection</li>
-                                        <li><a href="shop.html">Dresses</a></li>
-                                        <li><a href="shop.html">Blouses &amp; Shirts</a></li>
-                                        <li><a href="shop.html">T-shirts</a></li>
-                                        <li><a href="shop.html">Rompers</a></li>
-                                        <li><a href="shop.html">Bras &amp; Panties</a></li>
+                                        <li><a href="{%url 'women_product' %}">All</a></li>
+                                        <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='dress' %}">Dresses</a></li>
+                                        <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='shirts-tops' %}">Shirts</a></li>
+                                        <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='womens-tshirt' %}">T-shirts</a></li>
+                                        <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='jeans-w' %}">Jeans</a></li>
+                                        <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='skirts' %}">Skirts</a></li>
+                                        <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='hoodie-sweats' %}">Hoodies &amp; Sweats</a></li>
                                     </ul>
                                     <ul class="single-mega cn-col-4">
                                         <li class="title">Men's Collection</li>
-                                        <li><a href="shop.html">T-Shirts</a></li>
-                                        <li><a href="shop.html">Polo</a></li>
-                                        <li><a href="shop.html">Shirts</a></li>
-                                        <li><a href="shop.html">Jackets</a></li>
-                                        <li><a href="shop.html">Trench</a></li>
+                                            <li><a href="{%url 'men_product'%}">All</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='mens-tshirt' %}">T-Shirts</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='kurtas-shirts' %}">Shirts</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='jackets-coats' %}">Jackets &amp; Coats</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='jeans-m' %}">Jeans</a></li>
                                     </ul>
-                                    <ul class="single-mega cn-col-4">
-                                        <li class="title">Kid's Collection</li>
-                                        <li><a href="shop.html">Dresses</a></li>
-                                        <li><a href="shop.html">Shirts</a></li>
-                                        <li><a href="shop.html">T-shirts</a></li>
-                                        <li><a href="shop.html">Jackets</a></li>
-                                        <li><a href="shop.html">Trench</a></li>
-                                    </ul>
+                                    
                                     <div class="single-mega cn-col-4">
                                         <img src="img/bg-img/bg-6.jpg" alt="">
                                     </div>
                                 </div>
                             </li>
-                            <li><a href="#">Pages</a>
+                            <li><a href="#">Contents</a>
                                 <ul class="dropdown">
-                                    <li><a href="index.html">Home</a></li>
-                                    <li><a href="shop.html">Shop</a></li>
-                                    <li><a href="single-product-details.html">Product Details</a></li>
-                                    <li><a href="checkout.html">Checkout</a></li>
-                                    <li><a href="blog.html">Blog</a></li>
-                                    <li><a href="single-blog.html">Single Blog</a></li>
-                                    <li><a href="regular-page.html">Regular Page</a></li>
-                                    <li><a href="contact.html">Contact</a></li>
+                                    <li><a href="{%url 'home'%}">Home</a></li>
+                                    <li><a href="{%url 'product_view'%}">Shop</a></li>
+                                    <li><a href="{%url 'order_detail'%}">Order Details</a></li>
+                                    <li><a href="{%url 'check_out'%}">Checkout</a></li>
+                                    <li><a href="{%url 'view_cart'%}">Cart</a></li>
                                 </ul>
                             </li>
                             <li><a href="blog.html">Blog</a></li>
@@ -114,18 +106,19 @@
             <div class="header-meta d-flex clearfix justify-content-end">
                 <!-- Search Area -->
                 <div class="search-area">
-                    <form action="#" method="post">
+                    <form action="{%url 'search'%}" method="get">
+                        {%csrf_token%}
                         <input type="search" name="search" id="headerSearch" placeholder="Type for search">
                         <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
                     </form>
                 </div>
                 <!-- Favourite Area -->
                 <div class="favourite-area">
-                    <a href=""><img src="{% static 'img/core-img/heart.svg' %}" alt=""></a>
+                    <a href="{%url 'wishlist'%}"><img src="{% static 'img/core-img/heart.svg' %}" alt=""></a>
                 </div>
                 <!-- User Login Info -->
                 <div class="user-login-info">
-                    <a href="{%url 'order_detail' %}"><img src="{% static 'img/core-img/user.svg' %}" alt=""></a>
+                    <a href="{%url 'profile' %}"><img src="{% static 'img/core-img/user.svg' %}" alt=""></a>
                 </div>
                 <!-- Cart Area -->
                 <div  class="cart-area">
@@ -145,7 +138,7 @@
 </div>
 </header>
         {%block content%}
-
+        
         {%endblock%}
 
         <!-- ##### Footer Area Start ##### -->
@@ -162,7 +155,7 @@
                             <!-- Footer Menu -->
                             <div class="footer_menu">
                                 <ul>
-                                    <li><a href="shop.html">Shop</a></li>
+                                    <li><a href="{%url 'product_view'%}">Shop</a></li>
                                     <li><a href="blog.html">Blog</a></li>
                                     <li><a href="contact.html">Contact</a></li>
                                 </ul>
@@ -240,5 +233,5 @@
     <!-- Active js -->
     <script src="{% static 'js/active.js' %}"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-  
+
     </html> 

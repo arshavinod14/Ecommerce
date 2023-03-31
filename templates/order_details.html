@@ -1,10 +1,23 @@
 {% extends 'base1.html' %}
-
 {% block content %}
+{% include 'messages.html' %}
 
+<style>
+  .badge.custom-badge {
+    margin-left: 20px;
+    height: 30px;
+    width: 90px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  
+  }
+  
+</style>
 <div class="container-fluid">
   <div class="container">
-
+    
     {% if order %}
       {% for od in order %}
         <div class="d-flex justify-content-between align-items-center py-3">
@@ -19,19 +32,26 @@
                   <div>
                     <span class="me-3">{{ od.order_at }}</span>
                     <span class="me-3">#{{ od.order_id }}</span>
-                  {% if od.status %}
-                    {% if od.delivery_status == 'P' %}
-                      <span class="badge rounded-pill bg-info">Pending</span>
-                    {% else %}
-                      <span class="badge rounded-pill bg-info">Delivered</span>
-                    {% endif %}
-                  {%else%}
-                    <span class="badge rounded-pill bg-info">Canceled</span>
-                  {%endif%}
+                {% if od.status %}
+                  {% if od.delivery_status == 'Pending' %}
+                      <span class="badge rounded-pill bg-info custom-badge">Pending</span>
+                    {% elif od.delivery_status == 'Shipped' %}
+                      <span class="badge rounded-pill bg-warning custom-badge">Shipped</span>
+                      {% elif od.delivery_status == 'Out for delivery' %}
+                      <span class="badge rounded-pill bg-primary custom-badge">Out for delivery</span>
+                    {% elif od.delivery_status == 'Delivered' %}
+                      <span class="badge rounded-pill bg-success custom-badge">Delivered</span>
+                    {% elif od.delivery_status == 'Returned' %}
+                      <span class="badge rounded-pill bg-secondary custom-badge">Returned</span>
+                  {% endif %}
+                {% else %}
+                    <span class="badge rounded-pill bg-info custom-badge">Canceled</span>
+                {% endif %}
+                  
 
                   </div>
                   <div class="d-flex">
-                  <a style="color: blue; text-decoration:underline;" href="{% url 'invoice' %}"><span class="text">Invoice</span></a></button>
+                  <a style="color: blue; text-decoration:underline;" href="{% url 'invoice' od.id %}"><span class="text">Invoice</span></a></button>
                   </div>
                 </div>
                 <table class="table table-borderless">
@@ -65,7 +85,9 @@
                     </tr>
                   </tfoot>
                 </table>
+                
                 <div class="d-flex justify-content-end">
+                  <!-- <div style="margin-right:30px;"><a style="color:rgb(30, 28, 122)" href="">Track Order</a></div> -->
                   <button onclick = "return confirm('Are you sure you want to cancel the order?')" class="btn btn-danger me-3"><a href="{% url 'order_cancel' od.id %}" class="text-white" style="text-decoration:none;">Cancel Order</a></button>
                 </div>
               </div>

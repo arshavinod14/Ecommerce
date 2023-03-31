@@ -10,6 +10,18 @@ urlpatterns = [
     
     path("check/",views.check,name='check'),
     path("address/",views.address,name='address'),
+
+    path('profile/',views.profile,name='profile'),
+    path('add_to_wishlist/<int:id>/', views.add_to_wishlist, name='add_to_wishlist'),
+    path('wishlist/',views.wishlist,name='wishlist'),
+    path('remove_wishlist/<int:id>/',views.remove_wishlist,name='remove_wishlist'),
+    path('search/',views.search,name='search'),
+
+    # path('update_address/<int:id>/',views.update_address,name='update_address'),
+
+
+
+    
     
 
     

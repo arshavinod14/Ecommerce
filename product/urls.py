@@ -13,9 +13,16 @@ urlpatterns = [
     path("update_quantity/",views.update_quantity,name='update_quantity'),
     path('check_stock/', views.check_stock, name='check_stock'),
     path('check_out/', views.check_out, name='check_out'),
-    path('invoice/', views.invoice, name='invoice'),
 
+    path('women_product/', views.women_product, name='women_product'),
+    path('men_product/', views.men_product, name='men_product'),
+    path('category/<slug:category_slug>/<slug:subcategory_slug>/', views.category_products, name='category_products'),
 
-    
+    path('sort_products/', views.sort_products, name='sort_products'),
 
 ]
+
+    
+    
+
+

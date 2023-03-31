@@ -1,20 +1,41 @@
 import datetime
 from django.db import models
 from store.models import Account
+from django.utils.text import slugify
 # Create your models here.
 
 class Category(models.Model):
     name = models.CharField(max_length=250)
+    slug = models.SlugField(unique=True, null=True, blank=True)
     offer = models.PositiveIntegerField()
+
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
 
 class SubCategory(models.Model):
     name = models.CharField(max_length=200)
     category = models.ForeignKey(Category,on_delete=models.CASCADE)
+    slug = models.SlugField(unique=True, null=True, blank=True)
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+    
+class Brand(models.Model):
+    name = models.CharField(max_length=200)
+    def __str__(self):
+        return self.name
+
 
 class Size(models.Model):
     SIZE_CHOICES = [
@@ -27,9 +48,6 @@ class Size(models.Model):
     def __str__(self):
         return self.size
 
-
-
-
 class Product(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
@@ -39,12 +57,11 @@ class Product(models.Model):
     offer = models.PositiveIntegerField(default=0)
     stock = models.IntegerField()
     sizes = models.ManyToManyField(Size)
-    brand = models.CharField(max_length=200)
+    brand = models.ForeignKey(Brand,on_delete=models.CASCADE)
     image1 = models.ImageField(upload_to="ecom/image")
     image2 = models.ImageField(upload_to="ecom/image")
     image3 = models.ImageField(upload_to="ecom/image")
     image4 = models.ImageField(upload_to="ecom/image")
-
 
 
 class CartItems(models.Model):
@@ -56,3 +73,10 @@ class CartItems(models.Model):
     created_at = models.DateTimeField(default=datetime.datetime.now, blank=True)
 
 
+class Wishlist(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='wishlist_products')
+    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product} added to wishlist"

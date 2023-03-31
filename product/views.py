@@ -1,8 +1,8 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import get_object_or_404, render,redirect
 from product.forms import *
 from .models import CartItems, Product,Category, Size
-from store.models import Account
-from django.http import JsonResponse
+from store.views import loginacc
+from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.db.models import Sum
 from decimal import Decimal
@@ -15,7 +15,9 @@ from django.views.decorators.csrf import csrf_exempt
 def product_view(request):
     products = Product.objects.all()
     category = Category.objects.all()
+
     size = Size.objects.all()
+    brand = Brand.objects.all()
     count_p = Product.objects.all().count()
     cart_items = CartItems.objects.filter(user=request.user)
     count = cart_items.count()
@@ -25,6 +27,8 @@ def product_view(request):
         'size': size,
         'count_p':count_p,
         'count':count,
+        'brand':brand,
+
     }
     print(products)
     return render(request, 'products.html', context)
@@ -65,7 +69,7 @@ def add_to_cart(request, id):
         messages.error(request, "Please Login ")
         return render(request,'index.html')
 
-
+@login_required(login_url=loginacc)
 def view_cart(request):
     if request.user.is_authenticated:
         cart_items = CartItems.objects.filter(user=request.user)
@@ -113,7 +117,7 @@ def check_stock(request):
     data = {'stock_level': stock_level}
     return JsonResponse(data)
 
-@login_required
+@login_required(login_url=loginacc)
 def check_out(request):
     ad = Address.objects.filter(user=request.user)
     selected_address = None
@@ -151,18 +155,75 @@ def check_out(request):
     return render(request, 'checkout.html', context)
 
 
+def women_product(request):
+    women_category = Category.objects.get(name="Women's Fashion")
+    products = Product.objects.filter(category=women_category)
+    size = Size.objects.all()
+    brand = Brand.objects.all()
+    count_p = Product.objects.filter(category=women_category).count()
+    cart_items = CartItems.objects.filter(user=request.user)
+    count = cart_items.count()
+    context = {
+        'women_category': women_category,
+        'products': products,
+        'size': size,
+        'count_p':count_p,
+        'count':count,
+        'brand':brand,
+    }
+    print(products)
+    return render(request, 'products.html', context)
 
 
-@login_required
-def invoice(request):
-    order = Order.objects.filter(id=id)
-    order = Order.objects.get(id=id)
-    # adds = Billing_address.objects.filter(order_id_Ref=order.order_id)
-    # try:
-        # pay =Payment.objects.get(order_id=order.order_id)
-    # except:
-    #     pay = {'order_id':order.order_id,'created_at':order.order_at}
-    # return render(request, 'invoice.html', context={'order_ins': order_ins, 'adds': adds,'pay':pay})
-    return render(request, 'invoice.html')
+def men_product(request):
+    men_category = Category.objects.get(name="Men's Fashion")
+    products = Product.objects.filter(category=men_category)
+    size = Size.objects.all()
+    brand = Brand.objects.all()
+    count_p = Product.objects.filter(category=men_category).count()
+    cart_items = CartItems.objects.filter(user=request.user)
+    count = cart_items.count()
+    context = {
+        'men_category': men_category,
+        'products': products,
+        'size': size,
+        'count_p':count_p,
+        'count':count,
+        'brand':brand,
+    }
+    print(products)
+    return render(request, 'products.html', context)
+
+def category_products(request, category_slug, subcategory_slug):
+    brand = Brand.objects.all()
+    print("ggggggggggg")
+    category = get_object_or_404(Category, slug=category_slug)
+    print(category)
+    subcategory = get_object_or_404(SubCategory, slug=subcategory_slug, category=category)
+    print(subcategory)
+    products = Product.objects.filter(subcategory=subcategory)
+    print(products)
+    context = {
+        'category': category,
+        'subcategory': subcategory,
+        'products': products,
+        'brand':brand,
+    }
+    return render(request, 'products.html', context)
+
+
+def sort_products(request):
+    sort_by = request.GET.get('sort_by')
+    if sort_by == 'price_asc':
+        products = Product.objects.order_by('price')
+    elif sort_by == 'price_desc':
+        products = Product.objects.order_by('-price')
+    else:
+        products = Product.objects.all()
+
+    count_p = Product.objects.all().count()
+    brand = Brand.objects.all()
+    context = {'products': products,'count_p':count_p,'brand':brand,}
+    return render(request, 'products.html', context)
 
 

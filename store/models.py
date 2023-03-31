@@ -40,6 +40,9 @@ class Account(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+
+
+    profile_picture = models.ImageField(upload_to='profile_pictures', blank=True)
     
 
     USERNAME_FIELD = 'email'

@@ -2,6 +2,14 @@
 {%load static%}
 {% block content %}
 
+<style>
+    .red-heart {
+        color: red;
+    }
+    
+    
+</style>
+
 <!-- {% if messages %}
     <ul class="messages">
         {% for message in messages %}
@@ -50,7 +58,7 @@
             <h2>{{product.name}}</h2>
 
         <!-- <p class="product-price"><span class="old-price">{{product.price}}</span> $49.00</p> -->
-        <p class="product-price">{{product.price}}</p>
+        <p class="product-price">₹ {{product.price|floatformat}}</p>
         <p class="product-desc">{{product.description}}</p>
         <br>
         <!-- Form -->
@@ -68,9 +76,9 @@
                 <button  type="submit" name="addtocart" value="5" class="btn essence-btn"><a href="{%url 'cart' product.id %}">Add to cart</a></button>
                 <!-- Favourite -->
                 <div class="product-favourite ml-4">
-                
-                    <a href="#" class="favme fa fa-heart"></a>
+                    <a id="wishlist-heart" href="{% url 'add_to_wishlist' product.id %}" class="favme fa fa-heart"></a>
                 </div>
+                
             </div>
         </form>
     </div>
@@ -175,6 +183,13 @@
         resetImageZoom(imageZoom);
     }
 </script> -->
+
+<script>
+    $('.favme').on('click', function(){
+        $(this).toggleClass('red');
+    });
+    
+</script>
 
 {%endblock%}
 

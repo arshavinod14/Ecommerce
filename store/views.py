@@ -1,20 +1,22 @@
 import os
-from django.shortcuts import render,redirect
+from django.http import HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, render,redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import Account,Address
-from product.models import CartItems
+from product.models import CartItems,Product,Wishlist
 from .forms import *
 from AdminPanel.views import adminHome
 from twilio.rest import Client,TwilioException
 from django.views.decorators.cache import cache_control
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.postgres.search import SearchVector
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+
 
 num1 = 0
 phone = 0
-
-
-
 
 @cache_control(no_cache=True, must_revalidate=True)
 def index(request):
@@ -195,11 +197,193 @@ def address(request):
         return redirect('check_out')
     return redirect(index)
 
+# @login_required(login_url=loginacc)
+# def profile(request):
+#     addresses = Address.objects.filter(user=request.user)
+#     user = request.user
+#     if request.method == 'POST':
+#         profile_picture = request.FILES.get('profile_picture')
+#         if profile_picture:
+#             request.user.profile_picture = profile_picture
+#             messages.success(request, 'Profile Picture has been updated!')
+#             request.user.save()
+
+#         name = request.POST.get('name')
+#         phone = request.POST.get('phone')
+#         email = request.POST.get('email')
+#         current_password = request.POST.get('current_password')
+#         new_password = request.POST.get('new_password')
+#         confirm_password = request.POST.get('confirm_password')
+
+#         # user = request.user
+#         if (user.name != name) or (user.email != email) or (user.phone != phone):
+#             user.name = name
+#             user.email = email
+#             user.phone = phone
+#             user.save()
+#             messages.success(request, 'Profile updated successfully')
 
 
+#         if current_password and new_password and confirm_password:
+#             if user.check_password(current_password):
+#                 if new_password == confirm_password:
+#                     user.set_password(new_password)
+#                     user.save()
+#                     messages.success(request, 'Password updated successfully')
+#                 else:
+#                     messages.error(request, 'New password and confirm password do not match')
+#             else:
+#                 messages.error(request, 'Current password is incorrect')
+
+#         return redirect('profile')
+    
+#     context = {
+#         'user' : user,
+#         'addresses' :addresses,
+#     }
+
+#     return render(request, 'profile.html',context)
 
 
+def profile(request):
+    addresses = Address.objects.filter(user=request.user)
+    user = request.user
+    if request.method == 'POST':
+        profile_picture = request.FILES.get('profile_picture')
+        if profile_picture:
+            request.user.profile_picture = profile_picture
+            messages.success(request, 'Profile Picture has been updated!')
+            request.user.save()
 
+        name = request.POST.get('name')
+        phone = request.POST.get('phone')
+        email = request.POST.get('email')
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
 
+        # Update user profile information
+        if (user.name != name) or (user.email != email) or (user.phone != phone):
+            user.name = name
+            user.email = email
+            user.phone = phone
+            user.save()
+            messages.success(request, 'Profile updated successfully')
 
     
+
+        # Update user password
+        if current_password and new_password and confirm_password:
+            if user.check_password(current_password):
+                if new_password == confirm_password:
+                    user.set_password(new_password)
+                    user.save()
+                    messages.success(request, 'Password updated successfully')
+                else:
+                    messages.error(request, 'New password and confirm password do not match')
+            else:
+                messages.error(request, 'Current password is incorrect')
+
+        return redirect('profile')
+    
+
+
+    return render(request, 'profile.html')
+
+# def update_address(request, address_id):
+#     address = Address.objects.get(id=address_id)
+
+#     if request.method == 'POST':
+#         address.address1 = request.POST.get('address')
+#         address.state = request.POST.get('state')
+#         address.zip = request.POST.get('zip')
+#         address.country = request.POST.get('country')
+#         address.save()
+#         messages.success(request, 'Address updated successfully')
+#         return redirect('profile')
+
+#     context = {
+#         'address': address
+#     }
+#     return render(request, 'edit_address.html', context)
+
+
+
+
+
+def add_to_wishlist(request, id):
+    if request.user.is_authenticated:
+        product = Product.objects.get(id=id)
+        wishlist_item = Wishlist.objects.filter(product=product, user=request.user)
+        if wishlist_item.exists():
+            messages.info(request, "This product is already in your wishlist.")
+        else:
+            wishlist_item = Wishlist.objects.create(product=product, user=request.user)
+            messages.success(request, "Product added to your wishlist.")
+        # get the current URL and redirect back to it
+        return redirect('product_view')
+    else:
+        messages.error(request, "Please log in to add products to your wishlist.")
+        return redirect('login')
+
+
+def wishlist(request):
+    if request.user.is_authenticated:
+        wishlist_items = Wishlist.objects.filter(user=request.user)
+        print(wishlist_items)
+        cart_items = CartItems.objects.filter(user=request.user)
+        count = cart_items.count() 
+        context = {
+            'wishlist_items':wishlist_items,
+            'count' :count,
+        }
+        return render(request, 'wishlist.html',context)
+    else:
+        messages.error(request, "Please log in to view your wishlist.")
+        return redirect('login')
+
+# def remove_wishlist(request,id):
+#     if request.user.is_authenticated:
+#         Wishlist.objects.get(id=id).delete()
+#     return redirect(wishlist)
+
+def remove_wishlist(request, id):
+    if request.user.is_authenticated:
+        product = Product.objects.get(id=id)
+        wishlist_item = Wishlist.objects.filter(product=product, user=request.user)
+        if wishlist_item.exists():
+            wishlist_item.delete()
+            messages.success(request, "Product removed from your wishlist.")
+        else:
+            messages.info(request, "This product is not in your wishlist.")
+        return redirect('wishlist')
+    else:
+        messages.error(request, "Please log in to remove products from your wishlist.")
+        return redirect('login')
+
+
+
+
+
+
+def search(request):
+    if request.user.is_authenticated:
+        search_query = request.GET.get('search')
+        if search_query:
+            print(f"Search query: {search_query}")
+            try:
+                products = Product.objects.annotate(search=SearchVector('name')).filter(search=search_query)
+                print(f"Number of products found: {products.count()}")
+                return render(request, 'products.html', {'products': products})
+            except Exception as e:
+                print(f"Error during search: {e}")
+                return HttpResponseBadRequest()
+    return redirect('index')
+
+
+# def delete(Request):
+#     CartItems.objects.get(id=158).delete()
+#     # return redirect(index)
+#     # Product.objects.all().delete()
+#     return redirect(index)
+

@@ -61,46 +61,47 @@
                                 <div class="megamenu">
                                     <ul class="single-mega cn-col-4">
                                         <li class="title">Women's Collection</li>
-                                        <li><a href="shop.html">Dresses</a></li>
-                                        <li><a href="shop.html">Blouses &amp; Shirts</a></li>
-                                        <li><a href="shop.html">T-shirts</a></li>
-                                        <li><a href="shop.html">Rompers</a></li>
+                                        <li><a href="{%url 'women_product' %}">All</a></li>
+                                        <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='dress' %}">Dresses</a></li>
+                                        <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='shirts-tops' %}">Shirts</a></li>
+                                        <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='womens-tshirt' %}">T-shirts</a></li>
+                                        <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='jeans-w' %}">Jeans</a></li>
+                                        <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='skirts' %}">Skirts</a></li>
+                                        <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='hoodie-sweats' %}">Hoodies &amp; Sweats</a></li>
                                     </ul>
                                     <ul class="single-mega cn-col-4">
                                         <li class="title">Men's Collection</li>
-                                        <li><a href="shop.html">T-Shirts</a></li>
-                                        <li><a href="shop.html">Polo</a></li>
-                                        <li><a href="shop.html">Shirts</a></li>
-                                        <li><a href="shop.html">Jackets</a></li>
-                                        <li><a href="shop.html">Trench</a></li>
+                                            <li><a href="{%url 'men_product'%}">All</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='mens-tshirt' %}">T-Shirts</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='kurtas-shirts' %}">Shirts</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='jackets-coats' %}">Jackets &amp; Coats</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='jeans-m' %}">Jeans</a></li>
                                     </ul>
-                                    <ul class="single-mega cn-col-4">
+                                    <!-- <ul class="single-mega cn-col-4">
                                         <li class="title">Kid's Collection</li>
                                         <li><a href="shop.html">Dresses</a></li>
                                         <li><a href="shop.html">Shirts</a></li>
                                         <li><a href="shop.html">T-shirts</a></li>
                                         <li><a href="shop.html">Jackets</a></li>
                                         <li><a href="shop.html">Trench</a></li>
-                                    </ul>
+                                    </ul> -->
                                     <div class="single-mega cn-col-4">
                                         <img src="{% static 'img/bg-img/bg-6.jpg' %}" alt="">
                                     </div>
                                 </div>
                             </li>
-                            <li><a href="#">Pages</a>
+                            <li><a href="#">Contents</a>
                                 <ul class="dropdown">
-                                    <li><a href="index.html">Home</a></li>
-                                    <li><a href="shop.html">Shop</a></li>
-                                    <li><a href="single-product-details.html">Product Details</a></li>
-                                    <li><a href="checkout.html">Checkout</a></li>
-                                    <li><a href="blog.html">Blog</a></li>
-                                    <li><a href="single-blog.html">Single Blog</a></li>
-                                    <li><a href="regular-page.html">Regular Page</a></li>
-                                    <li><a href="contact.html">Contact</a></li>
+                                    <li><a href="{%url 'home'%}">Home</a></li>
+                                    <li><a href="{%url 'product_view'%}">Shop</a></li>
+                                    <li><a href="{%url 'order_detail'%}">Order Details</a></li>
+                                    <li><a href="{%url 'check_out'%}">Checkout</a></li>
+                                    <li><a href="{%url 'view_cart'%}">Cart</a></li>
                                 </ul>
                             </li>
                             <li><a href="blog.html">Blog</a></li>
                             <li><a href="contact.html">Contact</a></li>
+                            
                         </ul>
                     </div>
                     <!-- Nav End -->
@@ -111,18 +112,19 @@
             <div class="header-meta d-flex clearfix justify-content-end">
                 <!-- Search Area -->
                 <div class="search-area">
-                    <form action="#" method="post">
+                    <form action="{%url 'search'%}" method="get">
+                        {%csrf_token%}
                         <input type="search" name="search" id="headerSearch" placeholder="Type for search">
                         <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
                     </form>
                 </div>
                 <!-- Favourite Area -->
                 <div class="favourite-area">
-                    <a href=""><img src="{% static 'img/core-img/heart.svg' %}" alt=""></a>
+                    <a href="{%url 'wishlist'%}"><img src="{% static 'img/core-img/heart.svg' %}" alt=""></a>
                 </div>
                 <!-- User Login Info -->
                 <div class="user-login-info">
-                    <a href="{%url 'order_detail'%}"><img src="{% static 'img/core-img/user.svg' %}" alt=""></a>
+                    <a href="{%url 'profile'%}"><img src="{% static 'img/core-img/user.svg' %}" alt=""></a>
                 </div>
                 <!-- Cart Area -->
                 <div  class="cart-area">
@@ -142,13 +144,13 @@
         </div>
     </header>
     
-{% if messages %}
+<!-- {% if messages %}
     <ul class="messages">
         {% for message in messages %}
         <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
         {% endfor %}
     </ul>
-{% endif %}
+{% endif %} -->
     <section class="welcome_area bg-img background-overlay" style="background-image: url(static/img/bg-img/bg-1.jpg);">
         <div class="container h-100">
             <div class="row h-100 align-items-center">
@@ -170,28 +172,21 @@
             <div class="row justify-content-center">
                 <!-- Single Catagory -->
                 <div class="col-12 col-sm-6 col-md-4">
-                    <div class="single_catagory_area d-flex align-items-center justify-content-center bg-img" style="background-image: url(static/img/bg-img/bg-2.jpg);">
+                    <div class="single_catagory_area d-flex align-items-center justify-content-center bg-img" style="background-image: url(static/img/bg-img/womens.jpg);">
                         <div class="catagory-content">
-                            <a href="#">Clothing</a>
+                            <a href="{%url 'women_product' %}">Women's Fashion</a>
                         </div>
                     </div>
                 </div>
                 <!-- Single Catagory -->
                 <div class="col-12 col-sm-6 col-md-4">
-                    <div class="single_catagory_area d-flex align-items-center justify-content-center bg-img" style="background-image: url(static/img/bg-img/bg-3.jpg);">
+                    <div class="single_catagory_area d-flex align-items-center justify-content-center bg-img" style="background-image: url(static/img/bg-img/mens.jpg);">
                         <div class="catagory-content">
-                            <a href="#">Shoes</a>
+                            <a href="{%url 'men_product'%}">Men's Fashion</a>
                         </div>
                     </div>
                 </div>
                 <!-- Single Catagory -->
-                <div class="col-12 col-sm-6 col-md-4">
-                    <div class="single_catagory_area d-flex align-items-center justify-content-center bg-img" style="background-image: url(static/img/bg-img/bg-4.jpg);">
-                        <div class="catagory-content">
-                            <a href="#">Accessories</a>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

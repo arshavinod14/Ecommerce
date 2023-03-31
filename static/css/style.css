@@ -108,6 +108,9 @@ a[target='_blank']{
         left: 25%;
     }
 }
+/* align the checkboxes horizontally */
+
+
 /* .btn{
     display: flex;
     justify-content: center;

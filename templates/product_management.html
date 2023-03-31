@@ -59,5 +59,27 @@
 </div>
 
 
+{% if products %}
+    <!-- table code goes here -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if products.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ products.previous_page_number }}">&lsaquo; previous</a>
+            {% endif %}
+
+            <span class="current-page">
+                Page {{ products.number }} of {{ products.paginator.num_pages }}
+            </span>
+
+            {% if products.has_next %}
+                <a href="?page={{ products.next_page_number }}">next &rsaquo;</a>
+                <a href="?page={{ products.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endif %}
+
+<br><br>
 
 {% endblock %}

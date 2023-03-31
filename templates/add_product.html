@@ -2,42 +2,50 @@
 
 {% block content %}
 <style>
-    label
-    {
+    p {
         margin-right: 100%;
-    }
+      }
+      
+      
 </style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <br><br>
 <div class="section">
 <h3> Add Products</h3>
+<br><br>
 <form method="post" class="form-horizontal" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{form.as_p}}
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
 
-    <!-- other form fields -->
+        <br>
     <button type="submit" class="btn btn-primary">Add Product</button>
 </form>
-
+<br><br>
+</div>
 <script>
-    function fetchSubcategories(categoryId) {
+    $(document).ready(function() {
+      $('#id_category').on('change', function() {
+        var category_id = $(this).val();
         $.ajax({
-            url: "{% url 'fetch_subcategories' %}",
-            data: {
-                'category_id': categoryId
-            },
-            dataType: 'json',
-            success: function(data) {
-                var subcategorySelect = $("#subcategory");
-                subcategorySelect.empty();
-                $.each(data, function(key, value) {
-                    subcategorySelect.append($("<option></option>")
-                        .attr("value", value.id).text(value.name));
-                });
-            }
+          url: '/get_subcategories/',
+          data: {
+            'category_id': category_id
+          },
+          dataType: 'json',
+          success: function(data) {
+            var subcategorySelect = $('#id_subcategory');
+            subcategorySelect.empty();
+            $.each(data, function(index, value) {
+              subcategorySelect.append($('<option>').text(value.name).attr('value', value.id));
+            });
+          }
         });
-    }
-    
-    </script>
+      });
+    });
+  </script>
+  
 
 {% endblock %}

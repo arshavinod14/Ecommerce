@@ -1,0 +1,84 @@
+{% extends 'base1.html' %}
+
+{%load static%}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/wishlist.css' %}">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+<br><br>
+<div class="container">
+    <br><br>
+    <h5>Wishlist</h5>
+    <div class="row">
+    {%if wishlist_items%}
+        {% for item in wishlist_items %}
+        <!-- Single Product -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="single-product-wrapper">
+                <!-- Product Image -->
+
+            <a href="{% url 'product_detail' item.product.id %}">
+                <div class="product-img">
+                    <img src="{{ item.product.image1.url }}" alt="product_image1">
+                </div>
+    
+                <div class="product-description">
+                    <span>{{item.product.brand}}</span>
+                    <a href="single-product-details.html">
+                        <h6>{{ item.product.name }}</h6>
+                    </a>
+                    <p class="product-price">₹ {{ item.product.price }}</p>
+                </a>
+                    <div class="hover-content">
+                        <div class="content clossable" >
+                            <div class="close">
+                                <a href="{%url 'remove_wishlist' item.product.id %}"><i class="fa fa-close"></i></a>
+                            </div>
+                        </div>
+                        <!-- <div class="close">
+                            <button id ="close"><a href="{%url 'remove_wishlist' item.product.id %}" class="essence-btn"><i class="fa fa-trash"></i></a></button> 
+                        </div> -->
+
+                        
+                        <div class="add-to-cart-btn">
+                            <a href="{%url 'cart' item.product.id %}" class="btn essence-btn">Add to Cart</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {%endfor%}
+    {%endif%}
+    </div>
+    
+    <!-- Pagination -->
+    <div class="row">
+        <div class="col-sm-12">
+
+        <ul class="pagination pull-right">
+            <li class="disabled"><a href="#">«</a></li>
+            <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
+            <li><a href="#">2</a></li>
+            <li><a href="#">3</a></li>
+            <li><a href="#">4</a></li>
+            <li><a href="#">5</a></li>
+            <li><a href="#">»</a></li>
+        </ul>
+    
+        </div>
+    </div> 
+
+    </div>
+</div> 
+</div>
+
+
+<script>
+    $('.content.clossable').hover(function(){
+        $(this).find('.close').animate({opacity:1},100)
+            },function(){
+                $(this).find('.close').animate({opacity:0},100)
+            }
+                    )
+</script>
+{% endblock %}

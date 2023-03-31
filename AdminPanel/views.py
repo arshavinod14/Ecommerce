@@ -13,6 +13,8 @@ from django.contrib.postgres.search import SearchVector
 from django.views.decorators.cache import never_cache
 from django.http import JsonResponse
 from django.db.models import Sum
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 # Create your views here.
 
 @never_cache
@@ -43,7 +45,7 @@ def adminLogin(request):
 def adminHome(request):
     if request.user.is_authenticated and request.user.is_staff:
         print('Testing')
-        order = OrderItem.objects.all()
+        order = Order.objects.all()
         product = Product.objects.all()
         customers = Account.objects.all()
     
@@ -67,6 +69,43 @@ def adminHome(request):
     #     print(records)
     #     return render(request,'adminhome.html',{'records':records}) 
     # return redirect(adminHome)
+
+def admin_profile(request):
+    if request.user.is_authenticated:
+        user = request.user
+        if request.method == 'POST':
+            email = request.POST.get('email')
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+
+            # Update email if it has changed
+            if email and email != user.email:
+                user.email = email
+                user.save()
+                messages.success(request, 'Email updated successfully')
+
+            if current_password and new_password and confirm_password:
+
+                if user.check_password(current_password):
+        
+                    if new_password == confirm_password:
+                        user.set_password(new_password)
+                        user.save()
+                        messages.success(request, 'Password updated successfully')
+                    else:
+                        messages.error(request, 'New password and confirm password do not match')
+                else:
+                    messages.error(request, 'Current password is incorrect')
+        return render(request, 'admin_profile.html', {'user': user})
+
+    return redirect('adminlogin')
+
+
+
+
+
+
 
 @never_cache
 def user_management(request):
@@ -93,17 +132,29 @@ def block(request,id):
     return redirect(user_management)
         
 
+from django.core.paginator import Paginator
+
 def product_management(request):
     if request.user.is_authenticated and request.user.is_staff:
-        products= Product.objects.all().order_by('id')
+        products = Product.objects.all().order_by('id')
         print(products)
-        if request.method == 'GET'and request.GET.get('search') is not None:
+        if request.method == 'GET' and request.GET.get('search') is not None:
             print(request.GET)
-            products = Product.objects.annotate(search=SearchVector('name')).filter(search=request.GET.get('search'))
-            return render(request, 'product_management.html',{'products':products})
+            search_query = request.GET.get('search')
+            products = Product.objects.annotate(search=SearchVector('name')).filter(search=search_query)
+            paginator = Paginator(products, 10)
+            page_number = request.GET.get('page')
+            page_obj = paginator.get_page(page_number)
+            context = {'products': page_obj, 'search_query': search_query, 'paginator': paginator}
+            return render(request, 'product_management.html', context)
 
-        return render(request, 'product_management.html',{'products':products})
+        paginator = Paginator(products, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        context = {'products': page_obj, 'paginator': paginator}
+        return render(request, 'product_management.html', context)
     return redirect(adminLogin)
+
 
     
 @never_cache
@@ -112,6 +163,9 @@ def add_product(request):
         form = ProductForm()
         if request.method == 'POST':
             form = ProductForm(request.POST, request.FILES)
+            print("->>>>",request.POST)
+            print("->>>>",request.FILES)
+            
             if form.is_valid():
                 form.save()
             return redirect(product_management)
@@ -124,6 +178,10 @@ def add_product(request):
             return render(request, 'add_product.html', {'form': form, 'categories': categories, 'subcategories': subcategories})
             
     return redirect(product_management)
+
+
+
+
 
 def edit_product(request,id):
     if request.user.is_authenticated and request.user.is_staff:
@@ -148,10 +206,18 @@ def delete_product(request,id):
         return redirect(product_management)
     return redirect(product_management)
 
-def fetch_subcategories(request):
+# def fetch_subcategories(request):
+#     category_id = request.GET.get('category_id')
+#     subcategories = SubCategory.objects.filter(category_id=category_id)
+#     return JsonResponse({'subcategories': [{'id': s.id, 'name': s.name} for s in subcategories]})
+
+
+def get_subcategories(request):
     category_id = request.GET.get('category_id')
     subcategories = SubCategory.objects.filter(category_id=category_id)
-    return JsonResponse({'subcategories': [{'id': s.id, 'name': s.name} for s in subcategories]})
+    data = [{'id': subcategory.id, 'name': subcategory.name} for subcategory in subcategories]
+    return JsonResponse(data, safe=False)
+
 
 
 def category_management(request):
@@ -171,7 +237,8 @@ def add_category(request):
         if request.method == 'POST':
             name = request.POST['name']
             offer = request.POST['offer']
-            category = Category(name=name, offer=offer)
+            slug = request.POST['slug']
+            category = Category(name=name, offer=offer,slug=slug)
             category.save()
             return redirect(category_management)
     return render(request, 'add_category.html')
@@ -213,9 +280,10 @@ def add_sub_cat(request):
     if request.user.is_authenticated and request.user.is_staff:
         if request.method == 'POST':
             name = request.POST['name']
+            slug = request.POST['slug']
             category_id = request.POST['category']
             category = Category.objects.get(id=category_id)
-            subcategory=SubCategory(name=name,category=category)
+            subcategory=SubCategory(name=name,slug=slug,category=category)
             subcategory.save()
             return redirect(sub_category)
         categories = Category.objects.all()
@@ -239,6 +307,44 @@ def delete_sub_cat(request,id):
         subcategory.delete()
         #messages.success(request, "Deleted a record successfully.")
         return redirect(sub_category)
+    return redirect(adminHome)
+
+
+def brand_manage(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        brand = Brand.objects.all().order_by('id')
+        if request.method == 'GET' and request.GET.get('search') is not None:
+            brand = Brand.objects.annotate(search=SearchVector('name')).filter(search=request.GET.get('search'))
+            return render(request, 'brand_manage.html',{'brand':brand})
+        return render(request, 'brand_manage.html',{'brand':brand})
+    return redirect(brand_manage)
+
+def add_brand(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        if request.method == 'POST':
+            name = request.POST['name']
+            brand = Brand(name=name)
+            brand.save()
+            return redirect(brand_manage)
+    return render(request, 'add_brand.html')
+
+def edit_brand(request, id):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            name = request.POST['name']
+            Brand.objects.filter(id=id).update(name=name)
+        else:
+            data = Brand.objects.get(id=id)
+            return render(request, 'edit_brand.html',{'brand':data})
+    #messages.success(request, "Details have been Updated")
+    return redirect(brand_manage)
+
+def delete_brand(request, id):
+    if request.user.is_authenticated:
+        brand = Brand.objects.get(id=id)
+        brand.delete()
+        #messages.success(request, "Deleted a record successfully.")
+        return redirect(brand_manage)
     return redirect(adminHome)
 
 
@@ -267,4 +373,37 @@ def order_management(request):
         #     return render(request, 'order_management.html',{'order':order})
 
         return render(request, 'order_management.html',{'order':order})
+        
     return redirect(adminLogin)
+
+
+def delivery_status(request, id):
+    print("eeeeeeee")
+    order = Order.objects.get(id=id)
+    if order.delivery_status == 'Pending':
+        order.delivery_status = 'Shipped'
+    elif order.delivery_status == 'Shipped':
+        order.delivery_status = 'Out for delivery'
+    elif order.delivery_status == 'Out for delivery':
+        order.delivery_status = 'Delivered'
+    order.save()
+    return redirect(order_management)
+
+
+def cancel_order(request, id):
+    order = Order.objects.get(id=id)
+    if order.delivery_status == 'Delivered':
+        return HttpResponse('This order has already been delivered and cannot be canceled.')
+    order.status = False
+    order.delivery_status = 'Cancelled'
+    order.save()
+    return redirect(order_management)
+
+
+
+
+
+
+
+
+

@@ -1,16 +1,31 @@
 {%extends 'base1.html' %}
 {%load static%}
 {%block content%}
-
-
+<style>
+    .favme.active
+    {
+        color:red
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/toastr.css' %}" media="all">
+<script type="text/javascript" src="{% static 'js/toastr.min.js' %}"></script>  
 
 <div class="breadcumb_area bg-img"style="background-image: url({% static 'img/bg-img/breadcumb.jpg' %});">
         <div class="container h-100">
             <div class="row h-100 align-items-center">
                 <div class="col-12">
                     <div class="page-title text-center">
-                        <h2>dresses</h2>
+                        {% if category == "Women's Fashion" %}
+                            <h2>Women's Collection</h2>
+                        {% elif category == "Men's Fashion" %}
+                            <h2>Men's Collection</h2>
+                        {% else %}
+                            <h2>SHOP</h2>
+                        {% endif %}
                     </div>
+                    
                 </div>
             </div>
         </div>
@@ -32,42 +47,30 @@
                                 <ul id="menu-content2" class="menu-content collapse show">
                                     <!-- Single Item -->
                                     <li data-toggle="collapse" data-target="#clothing">
-                                        <a href="#">clothing</a>
-                                        <ul class="sub-menu collapse show" id="clothing">
-                                            <li><a href="#">All</a></li>
-                                            <li><a href="#">Bodysuits</a></li>
-                                            <li><a href="#">Dresses</a></li>
-                                            <li><a href="#">Hoodies &amp; Sweats</a></li>
-                                            <li><a href="#">Jackets &amp; Coats</a></li>
-                                            <li><a href="#">Jeans</a></li>
-                                            <li><a href="#">Pants &amp; Leggings</a></li>
-                                            <li><a href="#">Rompers &amp; Jumpsuits</a></li>
-                                            <li><a href="#">Shirts &amp; Blouses</a></li>
-                                            <li><a href="#">Shirts</a></li>
-                                            <li><a href="#">Sweaters &amp; Knits</a></li>
+                                        <a style="color:black" href="#">Women's Fashion</a>
+                                        <ul class="sub-menu collapse" id="clothing">
+                                            <li><a href="{%url 'women_product' %}">All</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='dress' %}">Dresses</a></li> 
+                                            <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='jeans-w' %}">Jeans</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='womens-tshirt' %}">T-Shirts</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='shirts-tops' %}">Shirts</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='skirts' %}">Skirts</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='hoodie-sweats' %}">Hoodies &amp; Sweats</a></li>
                                         </ul>
                                     </li>
-                                    
-                                    <!-- Single Item -->
-                                    <li data-toggle="collapse" data-target="#shoes" class="collapsed">
-                                        <a href="#">shoes</a>
-                                        <ul class="sub-menu collapse" id="shoes">
-                                            <li><a href="#">All</a></li>
-                                            <li><a href="#">Bodysuits</a></li>
-                                            <li><a href="#">Dresses</a></li>
-                                            <li><a href="#">Hoodies &amp; Sweats</a></li>
-                                            <li><a href="#">Jackets &amp; Coats</a></li>
-                                            <li><a href="#">Jeans</a></li>
-                                            <li><a href="#">Pants &amp; Leggings</a></li>
-                                            <li><a href="#">Rompers &amp; Jumpsuits</a></li>
-                                            <li><a href="#">Shirts &amp; Blouses</a></li>
-                                            <li><a href="#">Shirts</a></li>
-                                            <li><a href="#">Sweaters &amp; Knits</a></li>
+                                    <li data-toggle="collapse" data-target="#men_clothing">
+                                        <a style="color:black" href="#">Men's Fashion</a>
+                                        <ul class="sub-menu collapse" id="men_clothing">
+                                            <li><a href="{%url 'men_product'%}">All</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='mens-tshirt' %}">T-Shirts</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='kurtas-shirts' %}">Shirts</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='jackets-coats' %}">Jackets &amp; Coats</a></li>
+                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='jeans-m' %}">Jeans</a></li>
                                         </ul>
                                     </li>
                                     <!-- Single Item -->
-                                    <li data-toggle="collapse" data-target="#accessories" class="collapsed">
-                                        <a href="#">accessories</a>
+                                    <!-- <li data-toggle="collapse" data-target="#accessories" class="collapsed">
+                                        <a style="color:black" href="#">accessories</a>
                                         <ul class="sub-menu collapse" id="accessories">
                                             <li><a href="#">All</a></li>
                                             <li><a href="#">Bodysuits</a></li>
@@ -81,17 +84,17 @@
                                             <li><a href="#">Shirts</a></li>
                                             <li><a href="#">Sweaters &amp; Knits</a></li>
                                         </ul>
-                                    </li>
+                                    </li> -->
                                 </ul>
                             </div>
                         </div>
                 
-                        <!-- ##### Single Widget ##### -->
-                        <!-- <div class="widget price mb-50"> -->
-                            <!-- Widget Title -->
-                            <!-- <h6 class="widget-title mb-30">Filter by</h6> -->
-                            <!-- Widget Title 2 -->
-                            <!-- <p class="widget-title2 mb-30">Price</p>
+                    
+                        <!-- <div class="widget price mb-50">
+                   
+                            <h6 class="widget-title mb-30">Filter by</h6>
+                            Widget Title 2
+                            <p class="widget-title2 mb-30">Price</p>
 
                             <div class="widget-desc">
                                 <div class="slider-range">
@@ -110,13 +113,11 @@
                             <!-- Widget Title 2 -->
                             <p class="widget-title2 mb-30">Brands</p>
                             <div class="widget-desc">
+                                {%for b in brand%}
                                 <ul>
-                                    <li><a href="#">Asos</a></li>
-                                    <li><a href="#">Mango</a></li>
-                                    <li><a href="#">River Island</a></li>
-                                    <li><a href="#">Topshop</a></li>
-                                    <li><a href="#">Zara</a></li>
+                                    <li><a href="#">{{b.name}}</a></li>
                                 </ul>
+                                {%endfor%}
                             </div>
                         </div>
                     </div>
@@ -133,23 +134,23 @@
                                         <p><span>{{count_p}}</span> products found</p>
                                     </div>
                                     <!-- Sorting -->
-                                    <div class="product-sorting d-flex">
-                                        <p>Sort by:</p>
-                                        <form action="#" method="get">
-                                            <select name="select" id="sortByselect">
-                                                <option value="value">Highest Rated</option>
-                                                <option value="value">Newest</option>
-                                                <option value="value">Price: $$ - $</option>
-                                                <option value="value">Price: $ - $$</option>
+                                    
+                                    <form method="get" action="{% url 'sort_products' %}">
+                                        <div class="product-sorting d-flex">
+                                            <p>Sort by Price:</p>
+                                            <select name="sort_by" id="sort-by-select" onchange="this.form.submit()">
+                                            <option value="" id="placeholder" disabled {% if not request.GET.sort_by %}selected{% endif %} hidden>Sort products</option>
+                                            <option value="price_asc" {% if request.GET.sort_by == 'price_asc' %}selected{% endif %}>Low To High</option>
+                                            <option value="price_desc" {% if request.GET.sort_by == 'price_desc' %}selected{% endif %}>High To Low</option>
                                             </select>
-                                            <input type="submit" class="d-none" value="">
-                                        </form>
-                                    </div>
+                                        </div>
+                                    </form>
+                        
                                 </div>
                             </div>
                         </div>
                     
-
+                        {% include 'messages.html' %}
                         <div class="row">
                             {% for product in products %}
                             <!-- Single Product -->
@@ -169,7 +170,9 @@
                                         {%endif%} -->
                                         <!-- Favourite -->
                                         <div class="product-favourite">
-                                            <a href="#" class="favme fa fa-heart"></a>
+                                            
+                                            <a href="{% url 'add_to_wishlist' product.id %}" class="favme fa fa-heart" onclick="toggleHeart(this); event.preventDefault();return false;"></a>
+
                                         </div>
                                     </div>
                         
@@ -180,7 +183,7 @@
                                             <h6>{{product.name}}</h6>
                                         </a>
                                         <!-- <p class="product-price"><span class="old-price">{{product.price}}</span> $55.00</p> -->
-                                        <p class="product-price">{{product.price}}</p>
+                                        <p class="product-price">₹ {{product.price|floatformat }}</p>
                                         <!-- Hover Content -->
                                         <div class="hover-content">
                                             <!-- Add to Cart -->
@@ -224,5 +227,27 @@
             });
     }
 </script>
+
+<script>
+    var clothingMenuItem = document.querySelector('[data-target="#clothing"]');
+    clothingMenuItem.addEventListener('click', function(event) {
+    var clothingSubMenu = document.querySelector('#clothing');
+    clothingSubMenu.classList.toggle('show');
+    });
+</script>
+
+<script>
+    var clothingMenuItem = document.querySelector('[data-target="#men_clothing"]');
+    clothingMenuItem.addEventListener('click', function(event) {
+    var clothingSubMenu = document.querySelector('#men_clothing');
+    clothingSubMenu.classList.toggle('show');
+    });
+</script>
+
+<script>
+    function toggleHeart(elem) {
+      elem.classList.toggle("active");
+    }
+    </script>
 
 {%endblock%}
