@@ -5,16 +5,17 @@ Edit Sub Category
 {% block content %}
 
 
-<div class="login">
+<div class="container">
     <h5 class="text-center">Edit Details</h5>
     <form class="needs-validation" method="post">  
         {% csrf_token %}
         <div class="form-group"> 
-
+            <div class="form-outline mb-4">
             <label class="form-label">Edit Name</label>
-            <input class="form-control" type="text"  name="name" value="{{subcategory.name}}">
+            <input style="width: 500px;" type="text" id="form5Example1" name ="name" class="form-control" value="{{subcategory.name}}">
         </div>
-        <br><br><input class="btn btn-secondary" type="submit" value="Update"><br><br>
+        </div>
+        <input class="btn btn-secondary" type="submit" value="Update"><br><br>
     </form>
 </div>
 {% endblock %}

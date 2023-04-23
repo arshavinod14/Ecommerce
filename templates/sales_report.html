@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-3">
+<h2>Sales Report</h2>
+<hr>
+<div class="row">
+
+        <div class="col-md-6">
+            <div class="float-left">
+                <!-- <a href="" id="download" class="btn btn-danger mr-2">PDF</a> -->
+                <button class="btn btn-danger" id="download" >PDF</button>
+                <a href="{% url 'sales_excel_report' %}" class="btn btn-success mr-2">Excel</a>
+                <a href="{% url 'sales_csv_report' %}" class="btn btn-primary mr-2">CSV</a>
+            </div>
+            <div class="float-right">
+                <p class="text-muted">Total Sales: {{ total_sales }}</p>
+            </div>
+        </div>
+
+    <div class="col-sm-12" id="pdf1">
+        
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Customer Name</th>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Total Price</th>
+            <th>Order Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if orders %}
+            {% for order in orders %}
+            {% for item in order.items.all %}
+                <tr>
+                <td>{{ order.order_id }}</td>
+                <td>{{ order.user.name }}</td>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ order.total_price }}</td>
+                <td>{{ order.order_at }}</td>
+                </tr>
+            {% endfor %}
+            {% endfor %}
+        {% else %}
+            <tr>
+            <td colspan="6">No sales found.</td>
+            </tr>
+        {% endif %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="4" class="text-right">Total Revenue:</th>
+                <td>{{ total_revenue }}</td>
+                <td colspan="2"></td>
+            </tr>
+
+        </tfoot>
+
+    </table>
+    </div>
+</div>
+</div>
+
+
+{% if order %}
+    <!-- table code goes here -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if order.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ order.previous_page_number }}">&lsaquo; previous</a>
+            {% endif %}
+
+            <span class="current-page">
+                Page {{ order.number }} of {{ order.paginator.num_pages }}
+            </span>
+
+            {% if order.has_next %}
+                <a href="?page={{ order.next_page_number }}">next &rsaquo;</a>
+                <a href="?page={{ order.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+    
+{% endif %}
+<br><br>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+<script>
+    window.onload = function () {
+    document.getElementById("download")
+        .addEventListener("click", () => {
+            const pdf1 = this.document.getElementById("pdf1");
+            console.log(pdf1);
+            console.log(window);
+            var opt = {
+                margin: 1,
+                filename: 'sales_report.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 3 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().from(pdf1).set(opt).save();
+        })
+}
+</script>
+
+
+
+
+{% endblock %}

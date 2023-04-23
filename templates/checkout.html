@@ -8,23 +8,45 @@
         background-color: green;
         color: white;
     }
-    
-</style>
 
-    <div class="breadcumb_area bg-img"style="background-image: url({% static 'img/bg-img/breadcumb.jpg' %});">
-        <div class="container h-100">
-            <div class="row h-100 align-items-center">
-                <div class="col-12">
-                    <div class="page-title text-center">
-                        <h2>Checkout</h2>
-                    </div>
+    .essence-btn1 {
+        display: inline-block;
+        min-width: 170px;
+        height: 50px;
+        color: #ffffff;
+        border: none;
+        border-radius: 0;
+        padding: 0 40px;
+        text-transform: uppercase;
+        font-size: 12px;
+        line-height: 50px;
+        background-color: #5a5c85;
+        letter-spacing: 1.5px;
+        font-weight: 600;
+    }
+
+    .essence-btn1:hover,
+    .essence-btn1:focus {
+        color: #ffffff;
+        background-color: #dc0345;
+    }
+</style>
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+<div class="breadcumb_area bg-img"style="background-image: url({% static 'img/bg-img/breadcumb.jpg' %});">
+    <div class="container h-100">
+        <div class="row h-100 align-items-center">
+            <div class="col-12">
+                <div class="page-title text-center">
+                    <h2>Checkout</h2>
                 </div>
             </div>
         </div>
-    </div>    <!-- ##### Breadcumb Area End ##### -->
+    </div>
+</div> <!-- ##### Breadcumb Area End ##### -->
 
-    <!-- ##### Checkout Area Start ##### -->
-<form id = "form_1" method="POST" action="{% url 'place_order'%}">
+<!-- ##### Checkout Area Start ##### -->
+<form id="form_1" method="POST" action="{% url 'place_order'%}">
     <div class="checkout_area section-padding-80">
         <div class="container">
             <div class="row">
@@ -35,213 +57,239 @@
                         <div class="cart-page-heading mb-30">
                             <h5>Billing Address</h5>
                         </div>
-                                                
+
                         <div class="card-header py-3">
                             <h5 class="mb-0">Address</h5>
                         </div>
                         {% if ad %}
-                    
-                                {% for i in ad %}
-                                <div class="card">
-                                
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{ i.name }}</h5>
-                                        <p class="card-text">{{ i.address1 }}</p>
-                                        <p class="card-text">{{ i.state }}, {{ i.zip }}</p>
-                                        <p class="card-text">{{ i.country }}</p>
-                                        <p class="card-text">{{ i.phone }}</p>
-                                        <p class="card-text">{{ i.email }}</p>
-                                    </div>
-                                    <div class="card-footer">
-                                    
-                                            {% csrf_token %}
-                                            <!-- <button type="submit" name="selected_address_id" value="{{ i.id }}" class="btn btn-primary">Select Address</button> -->
-                                            
-                                            <input type="checkbox" name="address" value="{{ i.id }}" required> 
-                                            <label>Select Address</label>
-                                        
-                                    </div>
-                                </form>
-                                </div>
-                            {% endfor %}
+
+                        {% for i in ad %}
+                        <div class="card">
+
+                            <div class="card-body">
+                                <h5 class="card-title">{{ i.name }}</h5>
+                                <p class="card-text">{{ i.address1 }}</p>
+                                <p class="card-text">{{ i.state }}, {{ i.zip }}</p>
+                                <p class="card-text">{{ i.country }}</p>
+                                <p class="card-text">{{ i.phone }}</p>
+                                <p class="card-text">{{ i.email }}</p>
+                            </div>
+                            <div class="card-footer">
+
+                                {% csrf_token %}
+                                <!-- <button type="submit" name="selected_address_id" value="{{ i.id }}" class="btn btn-primary">Select Address</button> -->
+
+                                <input id="ad" type="radio" name="address" value="{{ i.id }}" required
+                                    onclick="func1('{{i.id}}')" checked>
+                                <label>Select Address</label>
+
+                            </div>
+                        </form>
+                        </div>
+                        {% endfor %}
                         {% else %}
-                            <p>No saved Address found!</p>
+                        <p>No saved Address found!</p>
                         {% endif %}
                         </div>
-                    
-                    
-                        <br><br>
-                        <button style="color: black;
+
+
+<br><br>
+<button style="color: black;
                         text-align: center;
                         font-size: 15px;
                         padding: 10px;
-                        border-radius: 15px;" 
-                        type="button" class="collapsible">Add New Address</button> 
-                        <div class="content" style="display: none;">  
-                            <form id="form2" method="post" action="{% url 'address' %}">
-                                {% csrf_token %}
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="name">Name <span>*</span></label>
-                                        <input type="text" class="form-control" id="first_name" value="" required name="name">
-                                    </div>
-                                
-                                    <div class="col-12 mb-3">
-                                        <label for="phone_number">Phone No <span>*</span></label>
-                                        <input type="number" class="form-control" id="phone_number" min="0" value="" name="phone">
-                                    </div>
-                                    <div class="col-12 mb-4">
-                                        <label for="email_address">Email <span>*</span></label>
-                                        <input type="email" class="form-control" id="email_address" value="" name="email">
-                                    </div>
-                                    <div class="col-12 mb-3">
-                                        <label for="street_address">Address <span>*</span></label>
-                                        <input type="text" class="form-control mb-3" id="street_address" value="" name="address1">
-                                        <!-- <input type="text" class="form-control" id="street_address2" value=""> -->
-                                    </div>
+                        border-radius: 15px;" type="button" class="collapsible">Add New Address</button>
+<div class="content" style="display: none;">
 
-                                    <div class="col-12 mb-3">
-                                        <label for="country">Country <span>*</span></label>
-                                        <select class="w-100" id="country" name="country" required>
-                                            <option value="usa">United States</option>
-                                            <option value="uk">United Kingdom</option>
-                                            <option value="ger">Germany</option>
-                                            <option value="fra">France</option>
-                                            <option value="ind">India</option>
-                                            <option value="aus">Australia</option>
-                                            <option value="bra">Brazil</option>
-                                            <option value="cana">Canada</option>
-                                        </select>
-                                    </div>
+    <form id="form2" method="post" action="{% url 'address' %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="name">Name <span>*</span></label>
+                <input type="text" class="form-control" id="first_name" value="{{user.name}}" required name="name">
+            </div>
 
-                                    <div class="col-12 mb-3">
-                                        <label for="city">State<span>*</span></label>
-                                        <input type="text" class="form-control" id="city" value="" name="state">
-                                    </div>
-                                    
-                                    <div class="col-12 mb-3">
-                                        <label for="postcode">Zip <span>*</span></label>
-                                        <input type="text" class="form-control" id="postcode" value="" name="zip">
-                                    </div>
-                                    <!-- <hr class="mb-4"> -->
-                                    <div class="col-12 mb-3">
-                                    <button name="saveaddress"  class="btn essence-btn">Save Address</button>
-                                </div>
-    
-                                </div>
-                            </form>
-                        </div>  
-                    </div>
-            
+            <div class="col-12 mb-3">
+                <label for="phone_number">Phone No <span>*</span></label>
+                <input type="number" class="form-control" id="phone_number" min="0" value="{{user.phone}}" name="phone">
+            </div>
+            <div class="col-12 mb-4">
+                <label for="email_address">Email <span>*</span></label>
+                <input type="email" class="form-control" id="email_address" value="{{user.email}}" name="email">
+            </div>
+            <div class="col-12 mb-3">
+                <label for="street_address">Address <span>*</span></label>
+                <input type="text" class="form-control mb-3" id="street_address" value="" name="address1">
+                <!-- <input type="text" class="form-control" id="street_address2" value=""> -->
+            </div>
+
+            <div class="col-12 mb-3">
+                <label for="country">Country <span>*</span></label>
+                <select class="w-100" id="country" name="country" required>
+                    <option value="usa">United States</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="ger">Germany</option>
+                    <option value="fra">France</option>
+                    <option value="ind">India</option>
+                    <option value="aus">Australia</option>
+                    <option value="bra">Brazil</option>
+                    <option value="cana">Canada</option>
+                </select>
+            </div>
+
+            <div class="col-12 mb-3">
+                <label for="city">State<span>*</span></label>
+                <input type="text" class="form-control" id="city" value="" name="state">
+            </div>
+
+            <div class="col-12 mb-3">
+                <label for="postcode">Zip <span>*</span></label>
+                <input type="text" class="form-control" id="postcode" value="" name="zip">
+            </div>
+            <!-- <hr class="mb-4"> -->
+            <div class="col-12 mb-3">
+                <button name="saveaddress" class="btn essence-btn">Save Address</button>
+            </div>
+
+        </div>
+    </form>
+</div>
+</div>
 
 
-                    <div class="col-12 col-md-6 col-lg-5 ml-lg-auto">
-                        <div class="order-details-confirmation">
-                            
-                                {% csrf_token %}
-                            <div class="cart-page-heading">
-                                <h5>Your Order</h5>
-                                <p>Details</p>
-                            </div>
-                            <div >
-                            <ul class="order-details-form mb-4">
-                        
-                            <!-- <li><span>Details</span></li> -->
-                
-                                {% if cartitems %}
-                            
-                            <table class="table table-striped table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Product Name</th>
-                                        <th>Quantity</th>
-                                        <th>Price</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {%for item in cartitems %}
-                                    <tr>
-                                        <td>{{item.product.name}} </td>
-                                        <td>{{item.quantity}}</td>
-                                        <td>{{item.unit_price | stringformat:'d'}}</td>
-            
-                                    </tr>
-                                    {%endfor%}
-                                </tbody>
-                            </table> 
-                                <h6 class="fw-bold">Total Price
-                                    <span>{{total_price | stringformat:'d'}}</span>
-                                    <input type="hidden" name="total_price" value="{{ total_price }}">
 
-                                </h6>
-                                {% else %}
-                                    <li><span>Your cart is empty!</span></li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                
-                        <div id="accordion">
-                            <div class="card">
-                            <div class="card-header" role="tab" data-toggle="collapse" data-target="#razorpay">
-                                <h6 class="mb-0">
-                                <label>
+<div class="col-12 col-md-6 col-lg-5 ml-lg-auto">
+    <div class="order-details-confirmation">
+
+        {% csrf_token %}
+        <div class="cart-page-heading">
+            <h5>Your Order</h5>
+            <p>Details</p>
+        </div>
+        <div>
+            <ul class="order-details-form mb-4">
+
+                <!-- <li><span>Details</span></li> -->
+
+                {% if cartitems %}
+
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for item in cartitems %}
+                        <tr>
+                            <td>{{item.product.name}} </td>
+                            <td>{{item.quantity}}</td>
+                            <td>{{item.unit_price | stringformat:'d'}}</td>
+
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+                <h6 class="fw-bold">Total Price
+                    <span id="total_price">{{total_price | stringformat:'d'}}</span>
+                    <input type="hidden" name="total_price" value="{{ total_price }}">
+
+                </h6>
+                {% else %}
+                <li><span>Your cart is empty!</span></li>
+                {% endif %}
+            </ul>
+
+            <form id="coupon-apply-form" method="post">
+                {% csrf_token %}
+                <div class="input-group w-auto">
+                    <input type="text" value="{{code}}" name="coupon_code" class="form-control custom-input"
+                        id="coupon-code" placeholder="Apply Coupon" aria-label="Example input"
+                        aria-describedby="button-addon1" name="coupon_code">
+                    <button class="btn btn-primary" type="submit" id="button-addon1" data-mdb-ripple-color="dark">
+                        Apply
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="accordion">
+            <div class="card">
+                <div class="card-header" role="tab" data-toggle="collapse" data-target="#razorpay">
+                    <h6 class="mb-0">
+                        <!-- <label>
                                     <input type="radio" name="payment_method" value="razorpay" checked>
                                     RazorPay
-                                </label>
-                                </h6>
-                            </div>
-                            <div id="razorpay" class="collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
-                                <div class="card-body">
-                                Payment using RazorPay.
-                                </div>
-                            </div>
-                            </div>
-                            <div class="card">
-                            <div class="card-header" role="tab" data-toggle="collapse" data-target="#cod">
-                                <h6 class="mb-0">
-                                <label>
-                                    <input type="radio" name="payment_method" value="cod">
-                                    Cash on Delivery
-                                </label>
-                                </h6>
-                            </div>
-                            <div id="cod" class="collapse" role="tabpanel" aria-labelledby="headingTwo" data-parent="#accordion">
-                                <div class="card-body">
-                                Payment using Cash on Delivery.
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                        
-                                <div class="card">
+                                </label> -->
+                    </h6>
+                    <form id="form3" class="text-center border border-light p-5" action="{%url 'get_add'%}"
+                        method="POST">
+                        {% csrf_token %}
+                        <input id="ad1" type="number" name="address" value="" hidden>
+                    </form>
+                    <button type="button" id="rzp-button1" class="btn essence-btn1"><img
+                            style="height: 20px; width:20px" src="{% static 'img/product-img/razor_pay.png' %}"
+                            alt="Razorpay">
+                        Razor Pay</button>
+                    <br><br>
+                    <button type="button" onclick="submitForms()" class="btn essence-btn1"> <i
+                            class="fa fa-truck"></i> COD</button>
+                </div>
+                <div id="razorpay" class="collapse" role="tabpanel" aria-labelledby="headingOne"
+                    data-parent="#accordion">
+                    <div class="card-body">
+                        Payment using RazorPay.
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" role="tab" data-toggle="collapse" data-target="#cod">
+                    <h6 class="mb-0">
+                        <label>
+                            <input type="radio" name="payment_method" value="cod" checked hidden>
+
+                        </label>
+                    </h6>
+                </div>
+                <div id="cod" class="collapse" role="tabpanel" aria-labelledby="headingTwo" data-parent="#accordion">
+                    <div class="card-body">
+                        Payment using Cash on Delivery.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="card">
                         
                                     <div id="collapseFour" class="collapse show" role="tabpanel" aria-labelledby="headingThree" data-parent="#accordion">
                                         <div class="card-body">
                                             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est cum autem eveniet saepe fugit, impedit magni.</p>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                                    <br><br>
-                                <!-- <a href="{%url 'place_order' %}" class="btn essence-btn">Place Order</a> -->
-                                <button type="button" onclick="submitForms()" class="btn essence-btn">Place Order</button>
-
-
-                        
-                        </div>
-                    </div>
-                </form>
-                </div>
-            </div>
-        </div>
+                                </div> -->
     </div>
-    <!-- ##### Checkout Area End ##### -->
-    <script>
-        var coll = document.getElementsByClassName("collapsible");
-        var i;
-        
-        for (i = 0; i < coll.length; i++) {
-            coll[i].addEventListener("click", function() {
+    <br><br>
+    <!-- <a href="{%url 'place_order' %}" class="btn essence-btn">Place Order</a> -->
+
+
+
+
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+<!-- ##### Checkout Area End ##### -->
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function () {
             this.classList.toggle("active");
             var content = this.nextElementSibling;
             if (content.style.display === "block") {
@@ -250,22 +298,130 @@
                 content.style.display = "block";
             }
         });
+    }
+</script>
+
+
+
+<script>
+    submitForms = function () {
+        document.getElementById("form_1").submit();
+        document.getElementById("form_2").submit();
+    }
+
+    submitForms1 = function () {
+        document.getElementById("form2").submit();
+        console.log("wefdwfefdwe")
+
+    }
+</script>
+
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "rzp_test_ZOq0MfvSYjUCuM",
+        "amount": "2000",
+        "currency": "INR",
+        "name": "Acme Corp",
+        "description": "Test Transaction",
+        "image": "https://example.com/your_logo",
+        "order_id": "{{payment_id}}",
+        "callback_url": "{%url 'success'%}",
+        "prefill": {
+            "name": "Gaurav Kumar",
+            "email": "gaurav.kumar@example.com",
+            "contact": "9999999999"
+        },
+        "notes": {
+            "address": "Razorpay Corporate Office"
+        },
+        "theme": {
+            "color": "#3399cc"
+        },
+
+        "address": ""
+    };
+
+    options.address = document.getElementById('ad').value
+    var rzp1 = new Razorpay(options);
+    document.getElementById('rzp-button1').onclick = function (e) {
+        e.preventDefault()
+        console.log(document.getElementById('ad1').value)
+        console.log(document.getElementById('ad').value)
+
+
+        //document.getElementById('ad1').value = document.getElementById('ad').value
+        //console.log(document.getElementById('ad1').value)
+
+        const address_field = $('#ad1').val()
+        if(address_field == ''){
+            const addressId = $('#ad').val()
+            console.log(addressId)
+            $('#ad1').val(addressId)
         }
-        </script>
+        var form = document.getElementById("form3");
+        var formData = new FormData(form);
+        fetch("{%url 'get_add'%}", {
+            method: 'post',
+            body: formData
+        })
+            .then(response => {
+                // handle the response from the 
+                rzp1.open();
+                e.preventDefault();
+            })
+            .catch(error => {
+                // handle any errors
+            });
+
+    }
+</script>
 
 
+<script>
 
-        <script>
-            submitForms = function(){
-                document.getElementById("form_1").submit();
-                document.getElementById("form_2").submit();
-            }
+    func1 = function (id) {
+        console.log("checking:", id)
+        document.getElementById("ad1").value = id;
 
-            submitForms1 = function(){
-                document.getElementById("form2").submit();
-                console.log("wefdwfefdwe")
-                
-            }
-        </script>
-        
-    {%endblock%}
+    }
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#button-addon1').on('click', function () {
+            var couponCode = $('#coupon-code-input').val();
+            var total_price = $('#total-price-element-id').text(); // Get the current total price
+            applyCoupon(couponCode, total_price); // Pass the total price to the function
+        });
+
+
+        $('#coupon-apply-form').submit(e => {
+            e.preventDefault();
+            console.log('submitted')
+
+            $.ajax({
+                url: "{% url 'apply_coupon' %}",
+                type: 'POST',
+                data: $('#coupon-apply-form').serialize(),
+                dataType: 'json',
+                beforeSend: function (xhr, settings) {
+                    // Include CSRF token in the request headers
+                    xhr.setRequestHeader('X-CSRFToken', $('input[name="coupon_code"]').val());
+                },
+            }).done(res => {
+                console.log(res)
+                location.reload()
+                //document.getElementById('total_price').innerHTML = res.total_price
+            }).fail(err => {
+
+            })
+        })
+
+    });
+
+    
+</script>
+{%endblock%}

@@ -19,7 +19,7 @@
 <table class="table table-bordered table-dark">
     <thead>
     <tr>
-        <th scope="col">id</th>
+        <th scope="col">Sl No</th>
         <th scope="col">Name</th>
         <th scope="col">Action</th>
     </tr>
@@ -27,12 +27,12 @@
     <tbody>
         {% for i in brand %}
         <tr>
-            <th scope="row">{{i.id}}</th>
+            <th scope="row">{{forloop.counter}}</th>
             <td>{{i.name}}</td>
             <td><a href="{% url 'edit_brand' i.id %}" class='btn btn-sm btn-warning me-3'>Edit </a>
                 <form action="{% url 'delete_brand' i.id %} " method="post" class="d-inline">
                     {% csrf_token %}
-                    <input type="submit" class="btn btn-sm btn-danger" value="Delete" onclick = "return confirm('Are you sure you want to delete {{i.name}}?')">
+                    <input type="submit" class="btn btn-sm btn-danger" value="Delete">
                 </form>
             </tr>
         {% endfor %}
@@ -46,4 +46,42 @@
     <a href='{% url "add_brand" %}'><button class='btn btn-sm btn-warning'>Add Brand</button></a>
 </div>
 
+{% if brand %}
+    <!-- table code goes here -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if brand.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page=brand.previous_page_number }}">&lsaquo; previous</a>
+            {% endif %}
+
+            <span class="current-page">
+                Page {{ brand.number }} of {{ brand.paginator.num_pages }}
+            </span>
+
+            {% if brand.has_next %}
+                <a href="?page={{ brand.next_page_number }}">next &rsaquo;</a>
+                <a href="?page={{ brand.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endif %}
+
+
+
+
+
+
+
+<script>
+    function confirmDelete(event) {
+        
+        var message = `Are you sure you want to delete {{brand.name}}?\nThis brand has {{product_count}} products associated with it.`;
+        return confirm(message);
+    }
+</script>
+
+
+
+<br><br>
 {% endblock %}

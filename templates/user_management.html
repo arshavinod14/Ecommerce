@@ -54,6 +54,27 @@
 {% endif %}
 </div>
 
+{% if records %}
+    <!-- table code goes here -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if records.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ records.previous_page_number }}">&lsaquo; previous</a>
+            {% endif %}
 
+            <span class="current-page">
+                Page {{ records.number }} of {{ records.paginator.num_pages }}
+            </span>
+
+            {% if records.has_next %}
+                <a href="?page={{ records.next_page_number }}">next &rsaquo;</a>
+                <a href="?page={{ records.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endif %}
+
+<br><br>
 
 {% endblock %}

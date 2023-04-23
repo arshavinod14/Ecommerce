@@ -6,24 +6,34 @@
     {
         color:red
     }
+    .sub-menu {
+        display: none;
+    }
+    li:hover > .sub-menu {
+    display: block;
+    }
+    
 </style>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'css/toastr.css' %}" media="all">
-<script type="text/javascript" src="{% static 'js/toastr.min.js' %}"></script>  
+<script>
+    $('.sub-menu').on('show.bs.collapse', function () {
+        $(this).closest('li').addClass('active');
+    });
+    
+    $('.sub-menu').on('hide.bs.collapse', function () {
+    $(this).closest('li').removeClass('active');
+    });
+</script>
 
 <div class="breadcumb_area bg-img"style="background-image: url({% static 'img/bg-img/breadcumb.jpg' %});">
         <div class="container h-100">
             <div class="row h-100 align-items-center">
                 <div class="col-12">
                     <div class="page-title text-center">
-                        {% if category == "Women's Fashion" %}
-                            <h2>Women's Collection</h2>
-                        {% elif category == "Men's Fashion" %}
-                            <h2>Men's Collection</h2>
-                        {% else %}
                             <h2>SHOP</h2>
-                        {% endif %}
+                            <!-- {% for i in category %}
+
+                                <h2>{{ i.name }}</h2>
+                            {% endfor %} -->
                     </div>
                     
                 </div>
@@ -46,52 +56,31 @@
                             <div class="catagories-menu">
                                 <ul id="menu-content2" class="menu-content collapse show">
                                     <!-- Single Item -->
-                                    <li data-toggle="collapse" data-target="#clothing">
-                                        <a style="color:black" href="#">Women's Fashion</a>
-                                        <ul class="sub-menu collapse" id="clothing">
-                                            <li><a href="{%url 'women_product' %}">All</a></li>
-                                            <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='dress' %}">Dresses</a></li> 
-                                            <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='jeans-w' %}">Jeans</a></li>
-                                            <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='womens-tshirt' %}">T-Shirts</a></li>
-                                            <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='shirts-tops' %}">Shirts</a></li>
-                                            <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='skirts' %}">Skirts</a></li>
-                                            <li><a href="{% url 'category_products' category_slug='womens-fashion' subcategory_slug='hoodie-sweats' %}">Hoodies &amp; Sweats</a></li>
+                                    <li><a style= "color:black" href="{%url 'product_view'%}">All</a></li>
+                                    {% for i in category %}
+                                    <li>
+                                        <a style = "color:black" href="{% url 'product_view'%}?category={{i.id}}">{{ i.name }}</a>
+                                        <ul class="sub-menu collapse" id="{{i.id}}" data-parent="#{{i.id}}">
+                                        {%for j in i.subcategory%}
+                                            <li><a style = "color:black" href="{% url 'product_view'%}?subcategory={{j.id}}">{{ j.name }}</a></li>
+                                        {%endfor%}
                                         </ul>
                                     </li>
-                                    <li data-toggle="collapse" data-target="#men_clothing">
-                                        <a style="color:black" href="#">Men's Fashion</a>
-                                        <ul class="sub-menu collapse" id="men_clothing">
-                                            <li><a href="{%url 'men_product'%}">All</a></li>
-                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='mens-tshirt' %}">T-Shirts</a></li>
-                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='kurtas-shirts' %}">Shirts</a></li>
-                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='jackets-coats' %}">Jackets &amp; Coats</a></li>
-                                            <li><a href="{% url 'category_products' category_slug='mens-fashion' subcategory_slug='jeans-m' %}">Jeans</a></li>
+                                    {% endfor %}
+
+                                    <li >
+                                        <ul >
+                                        
                                         </ul>
                                     </li>
-                                    <!-- Single Item -->
-                                    <!-- <li data-toggle="collapse" data-target="#accessories" class="collapsed">
-                                        <a style="color:black" href="#">accessories</a>
-                                        <ul class="sub-menu collapse" id="accessories">
-                                            <li><a href="#">All</a></li>
-                                            <li><a href="#">Bodysuits</a></li>
-                                            <li><a href="#">Dresses</a></li>
-                                            <li><a href="#">Hoodies &amp; Sweats</a></li>
-                                            <li><a href="#">Jackets &amp; Coats</a></li>
-                                            <li><a href="#">Jeans</a></li>
-                                            <li><a href="#">Pants &amp; Leggings</a></li>
-                                            <li><a href="#">Rompers &amp; Jumpsuits</a></li>
-                                            <li><a href="#">Shirts &amp; Blouses</a></li>
-                                            <li><a href="#">Shirts</a></li>
-                                            <li><a href="#">Sweaters &amp; Knits</a></li>
-                                        </ul>
-                                    </li> -->
                                 </ul>
                             </div>
+                        
                         </div>
                 
                     
                         <!-- <div class="widget price mb-50">
-                   
+                
                             <h6 class="widget-title mb-30">Filter by</h6>
                             Widget Title 2
                             <p class="widget-title2 mb-30">Price</p>
@@ -123,9 +112,10 @@
                     </div>
                 </div>
 
-
+    
                 <div class="col-12 col-md-8 col-lg-9">
                     <div class="shop_grid_product_area">
+                        
                         <div class="row">
                             <div class="col-12">
                                 <div class="product-topbar d-flex align-items-center justify-content-between">
@@ -149,8 +139,6 @@
                                 </div>
                             </div>
                         </div>
-                    
-                        {% include 'messages.html' %}
                         <div class="row">
                             {% for product in products %}
                             <!-- Single Product -->
@@ -170,8 +158,10 @@
                                         {%endif%} -->
                                         <!-- Favourite -->
                                         <div class="product-favourite">
-                                            
-                                            <a href="{% url 'add_to_wishlist' product.id %}" class="favme fa fa-heart" onclick="toggleHeart(this); event.preventDefault();return false;"></a>
+                                            <!-- <a href="{% url 'add_to_wishlist' product.id %}" class="favme fa fa-heart"></a> -->
+                                            <a href="#" class="favme fa fa-heart add-to-wishlist-btn" data-product-id="{{ product.id }}"></a>
+                                            <span id="wishlist-message"></span>
+
 
                                         </div>
                                     </div>
@@ -187,34 +177,67 @@
                                         <!-- Hover Content -->
                                         <div class="hover-content">
                                             <!-- Add to Cart -->
+                                            {%if product.stock <= 0 %}
                                             <div class="add-to-cart-btn">
-                                                <a href="{%url 'cart' product.id %}" class="btn essence-btn">Add to Cart</a>
+                                                <a href="#" class="btn essence-btn">Out of Stock</a>
                                             </div>
+                                            {%else%}
+                                            <div class="add-to-cart-btn">
+                                                <a href="#" class="add-to-cart btn essence-btn" data-product-id="{{ product.id }}">Add to Cart</a>
+                                                <!-- <a href="{%url 'add_to_cart' product.id %}" class="btn essence-btn">Add to Cart</a> -->
+                                            </div>
+                                            {%endif%}
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        
+
                         {%endfor%}
                         </div>
                         <nav aria-label="navigation">
                             <ul class="pagination mt-50 mb-70">
-                                <li class="page-item"><a class="page-link" href="#"><i class="fa fa-angle-left"></i></a></li>
-                                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item"><a class="page-link" href="#">...</a></li>
-                                <li class="page-item"><a class="page-link" href="#">21</a></li>
-                                <li class="page-item"><a class="page-link" href="#"><i class="fa fa-angle-right"></i></a></li>
+                                {% if products.has_previous %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}"><i class="fa fa-angle-left"></i></a></li>
+                                {% else %}
+                                    <li class="page-item disabled"><a class="page-link" href="#"><i class="fa fa-angle-left"></i></a></li>
+                                {% endif %}
+                        
+                                {% for i in products.paginator.page_range %}
+                                    {% if products.number == i %}
+                                        <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                                    {% elif i > products.number|add:'-3' and i < products.number|add:'3' %}
+                                        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+                        
+                                {% if products.has_next %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}"><i class="fa fa-angle-right"></i></a></li>
+                                {% else %}
+                                    <li class="page-item disabled"><a class="page-link" href="#"><i class="fa fa-angle-right"></i></a></li>
+                                {% endif %}
                             </ul>
                         </nav>
+                        
                     </div>
                 </div>
             </div>
+     
         </div>
         </section>
         <!-- ##### Shop Grid Area End ##### -->
     
-<script>
+
+
+
+        
+
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+        
+    <script src="{% static 'js/script.js' %}"></script>
+        
+        
+<!-- <script>
     function addToCart(productId) {
         fetch('{/add_to_cart_ajax/}' + productId + '/')
             .then(response => response.json())
@@ -226,7 +249,7 @@
                 }
             });
     }
-</script>
+</script> -->
 
 <script>
     var clothingMenuItem = document.querySelector('[data-target="#clothing"]');
@@ -244,10 +267,118 @@
     });
 </script>
 
+
+
+<!-- Include jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-    function toggleHeart(elem) {
-      elem.classList.toggle("active");
-    }
+    $(document).ready(function() {
+      // Handle click event on "Add to wishlist" button
+    $('.add-to-wishlist-btn').on('click', function(event) {
+        event.preventDefault();
+    
+        // Get product ID from data attribute
+        var productId = $(this).data('product-id');
+        console.log(productId)
+        // Get CSRF token
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+    
+        // Add CSRF token to Ajax request data
+        var data = {'id': productId, 'csrfmiddlewaretoken': csrfToken};
+    
+        // Make Ajax request to add product to wishlist
+        $.ajax({
+        url: "{% url 'add_to_wishlist' 0 %}".replace('0', productId),
+        type: "POST",
+        data: data,
+        dataType: "json",
+        success: function(response) {
+            if (response.message == 'This product is already in your wishlist.') {
+                $.toast({
+                    heading: 'Info',
+                    text: response.message,
+                    showHideTransition: 'slide',
+                    icon: 'info',
+                    position:'top-right',
+                    hideAfter: 5000 
+                });
+            } else {
+                $.toast({
+                    heading: 'Success',
+                    text: response.message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position:'top-right',
+                    hideAfter: 5000 
+                });
+            }
+        },
+        
+        error: function(xhr, status, error) {
+            // Display error message
+            alert(error);
+        }
+    });
+    });
+    });
+    </script>
+    
+<script>
+    $(document).ready(function() {
+    // Handle click event on "Add to cart" button
+    $('a.add-to-cart').on('click', function(event) {
+        event.preventDefault();
+        
+        // Get product ID from data attribute
+        var productId = $(this).data('product-id');
+        
+        // Get CSRF token
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        
+        // Add CSRF token to Ajax request data
+        var data = {'id': productId, 'csrfmiddlewaretoken': csrfToken};
+        
+        // Send Ajax request
+        $.ajax({
+        url: "{% url 'add_to_cart' 0 %}".replace('0', productId),
+        type: "POST",
+        data: data,
+        dataType: "json",
+        success: function(response) {
+            if (response.success) {
+                // Display success message
+                $.toast({
+                    heading: 'Success',
+                    text: response.message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: {
+                        right:20,
+                        top: 60
+                    },
+                    hideAfter: 5000 
+                });
+                
+                // Update cart count
+                $('#essenceCartBtn span').text(response.count);
+            }
+        },
+        
+        error: function(xhr, status, error) {
+            // Display error message
+            $.toast({
+            heading: 'Error',
+            text: error,
+            showHideTransition: 'slide',
+            icon: 'error',
+            position:'top-right',
+            hideAfter: 5000 
+            });
+        }
+        });
+    });
+    });
+    
     </script>
 
 {%endblock%}

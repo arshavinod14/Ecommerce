@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}
+Edit Banner
+{% endblock %}
+{% block content %}
+
+
+<div class="container">
+    <h5 class="text-center">Edit Details</h5>
+    <form class="needs-validation" method="post" enctype="multipart/form-data">  
+        {% csrf_token %}
+        <div class="form-group"> 
+            <div class="form-outline mb-4">
+            <label class="form-label" for="form5Example1">Title 1</label>
+            <input style="width: 500px;" type="text" id="form5Example1" name ="title1" class="form-control" value="{{banner.title1}}">
+            </div>
+            <div class="form-outline mb-4">
+            <label class="form-label" for="form5Example1">Title 2</label>
+            <input style="width: 500px;" type="text" id="form5Example2" name="title2" class="form-control" value="{{banner.title2}}">
+            </div>
+
+            <div class="form-outline mb-4">
+                <label class="form-label" for="form5Example1">Image</label>
+                <input style="width: 500px;" type="file" id="form5Example2" name="image1" class="form-control">
+                {% if banner.image1 %}
+                <img src="{{ banner.image1.url }}" alt="{{ banner.title1 }}" style="max-height: 100px;">
+                {% endif %}
+            </div>
+            
+
+            <div class="form-outline mb-4">
+                <label class="form-label" for="form5Example1">Tag</label>
+                <input style="width: 500px;" type="text" id="form5Example2" name="tag" class="form-control" value="{{banner.tag}}">
+            </div>
+    
+        </div>
+        
+        <input class="btn btn-secondary" type="submit" value="Update"><br><br>
+    </form>
+</div>
+{% endblock %}

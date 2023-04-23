@@ -10,7 +10,7 @@ class SignUpForm(forms.Form):
     confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'style': 'width: 370px;', 'class': 'form-control'}))
 
 class LoginForm(forms.Form):
-    email = forms.EmailField(widget=forms.EmailInput(attrs={'style':'width:370px;','class':'form-control'}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'id': 'id_email', 'style':'width:370px;','class':'form-control'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'style': 'width: 370px;', 'class': 'form-control'}))
 
     

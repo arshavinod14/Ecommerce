@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}
+Edit Coupon
+{% endblock %}
+{% block content %}
+
+
+<div class="container">
+    <h5 class="text-center">Edit Details</h5>
+    <form class="needs-validation" method="POST">  
+        {% csrf_token %}
+        <div class="form-group"> 
+            <div class="form-outline mb-4">
+            <label class="form-label">Code</label>
+            <input style="width: 500px;" type="text" id="form5Example1" name ="code" class="form-control" value="{{coupon.code}}">
+            </div>
+
+            <div class="form-outline mb-4">
+                <label class="form-label">Discount</label>
+                <input style="width: 500px;" type="text" id="form5Example1" name ="discount" class="form-control" value="{{coupon.discount}}">
+            </div>
+
+
+            <div class="form-outline mb-4">
+                <label class="form-label">Valid to</label>
+                <input style="width: 500px;" type="text" id="form5Example1" name ="valid_to" class="form-control" value="{{coupon.valid_to}}">
+            </div>
+
+            <div class="form-outline mb-4">
+                <label class="form-label">Maximum Amount Purchase</label>
+                <input style="width: 500px;" type="text" id="form5Example1" name ="min_purchase_amount" class="form-control" value="{{coupon.min_purchase_amount}}">
+            </div>
+
+            
+
+        </div>
+        <input class="btn btn-secondary" type="submit" value="Update"><br><br>
+    </form>
+</div>
+{% endblock %}

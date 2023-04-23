@@ -47,7 +47,7 @@ color: #dedbdb
     <td>
     <div class="py-2"> <span class="d-block text-muted">Order No</span> <span>{{order.order_id}}</span> </div>
     </td>
-    {%if order.order_method %}
+    {%if order.payment_method == 'RAZORPAY' %}
     <td>
     <div class="py-2"> <span class="d-block text-muted">Payment</span> <span><img src="https://img.icons8.com/color/48/000000/mastercard.png" width="20" /></span> </div>
     </td>

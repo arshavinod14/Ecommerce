@@ -1,126 +1,246 @@
 {%load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart</title>
+    <link rel="stylesheet" href="{% static 'css/jquery.toast.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery.toast.css' %}">
     <link rel="icon" href="{% static 'css/cart.css' %}">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-        
+
 
     <section class="h-100 h-custom" style="background-color: #ffffff;">
         <div class="container py-5 h-100">
-        <div class="row d-flex justify-content-center align-items-center ">
-            <div class="col-12">
-            <div class="card card-registration card-registration-2" style="border-radius: 15px; border-color:rgb(85, 82, 84);border-width:5px">
-                <div class="card-body p-0">
-                <div class="row g-0">
-                    <div class="col-lg-8">
-                    <div class="p-5">
-                        <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="fw-bold mb-0 text-black">Cart</h1>
-                        <h6 class="mb-0 text-muted"></h6>
-                        </div>
-                        <hr class="my-4">
-                    {% if cart_items %}
-                        {%for item in cart_items%}
+            <div class="row d-flex justify-content-center align-items-center ">
+                <div class="col-12">
+                    <div class="card card-registration card-registration-2"
+                        style="border-radius: 15px; border-color:rgb(85, 82, 84);border-width:5px">
+                        <div class="card-body p-0">
+                            <div class="row g-0">
+                                <div class="col-lg-8">
+                                    <div class="p-5">
+                                        <div class="d-flex justify-content-between align-items-center mb-5">
+                                            <h1 class="fw-bold mb-0 text-black">Cart</h1>
+                                            <h6 class="mb-0 text-muted"></h6>
+                                        </div>
+                                        <hr class="my-4">
+                                        {% if cart_items %}
+                                        {%for item in cart_items%}
 
-                        <div class="row mb-4 d-flex justify-content-between align-items-center">
-                            <div class="col-md-2 col-lg-2 col-xl-2">
-                            <img src="/media/{{item.product.image1}}" class="img-fluid rounded-3" alt="{{ item.product.name }}">
-                        </div>
-                            <div class="col-md-3 col-lg-3 col-xl-3">
-                            <h6 class="text-black mb-0">{{item.product.name}}</h6>
-                            <!-- <h6 class="text-black mb-0">{{item.product.description}}</h6> -->
-                        </div>
-                            <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
-                            <button class="btn btn-link px-2"
-                                onclick="this.parentNode.querySelector('input[type=number]').stepDown()">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                    
-                            <input type="number" name="quantity" min="1" value="{{ item.quantity }}" required  class="form-control form-control-sm" onchange="updateQuantity(this,'{{item.id}}')" data-item-id="{{ item.id }}"/>
+                                        <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                            <div class="col-md-2 col-lg-2 col-xl-2">
+                                                <img src="/media/{{item.product.image1}}" class="img-fluid rounded-3"
+                                                    alt="{{ item.product.name }}">
+                                            </div>
+                                            <div class="col-md-3 col-lg-3 col-xl-3">
+                                                <h6 class="text-black mb-0">{{item.product.name}}</h6>
+                                                <!-- <h6 class="text-black mb-0">{{item.product.description}}</h6> -->
+                                            </div>
+                                            <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
+                                                <button class="btn btn-link px-2"
+                                                    onclick="this.parentNode.querySelector('input[type=number]').stepDown()">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <button type="button" onclick="changeQuantity('{{item.id}}', 1)" class="btn btn-primary btn-sm">+</button>
+                                                <input id="qty-{{item.id}}" type="number" name="quantity" min="1" value="{{ item.quantity }}"
+                                                    required class="form-control form-control-sm"
+                                                    onchange="updateQuantity(this,'{{item.id}}')"
+                                                    data-item-id="{{ item.id }}" />
+                                                <button type="button" onclick="changeQuantity('{{item.id}}', -1)" class="btn btn-primary btn-sm">-</button>
 
-                        </div>
-                        <div class="col-md-3 col-lg-3 col-xl-2 d-flex"><button type="button" class="btn btn-primary btn-sm me-1 mb-2" data-mdb-toggle="tooltip"
-                        title="Remove item">
-                        <a href="{% url 'delete_cart' item.id %}" class="text-white" style="text-decoration:none;">Remove</a>
-                    </button></div>
-                        <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
-                            <h6 class="mb-0">{{item.product.price}}</h6>
-                        </div>
-                        <div class="col-md-1 col-lg-1 col-xl-1 text-end">
-                            <a href="#!" class="text-muted"><i class="fas fa-times"></i></a>
-                        </div>
-                        </div>
-                        <hr class="my-4">
-                
-                        {%endfor%}
-                    {% else %}
-                        <div class="card-body" style="text-align:center;">
-                        <h2><a class="btn btn-success" href="{% url 'product_view' %}" >Add Products</a></h2>
-                        </div>
-                    {% endif %}
-                        <div class="pt-5">
-                        <h6 class="mb-0"><a href="{% url 'home' %}" class="text-body"><i
-                                class="fas fa-long-arrow-alt-left me-2"></i>Back to shop</a></h6>
-                        </div>
-                    </div>
-                    </div>
-                    <div class="col-lg-4 bg-grey">
-                    <div class="p-5">
-                        <h3 class="fw-bold mb-5 mt-2 pt-1">Summary</h3>
-                        <hr class="my-4">
-                        <div class="d-flex justify-content-between mb-4">
-                        <h5 class="text-uppercase">Items</h5>
-                        <h5> {{count}}</h5>
-                        </div>
-                
+                                            </div>
+                                            <div class="col-md-3 col-lg-3 col-xl-2 d-flex"><button type="button"
+                                                    class="btn btn-primary btn-sm me-1 mb-2" data-mdb-toggle="tooltip"
+                                                    title="Remove item">
+                                                    <a href="{% url 'delete_cart' item.id %}" class="text-white"
+                                                        style="text-decoration:none;">Remove</a>
+                                                </button></div>
+                                            <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                                                <h6 class="mb-0">₹ {{item.product.price}}</h6>
+                                            </div>
+                                            <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+                                                <a href="#!" class="text-muted"><i class="fas fa-times"></i></a>
+                                            </div>
+                                        </div>
+                                        <hr class="my-4">
+                                        {%endfor%}
+                                        <!-- {%if user.is_authenticated%}
+                                        <form id="coupon-apply-form" method="post">
+                                            {% csrf_token %}
+                                            <div class="input-group w-auto">
+                                                <input type="text" value="{{code}}" name="coupon_code"
+                                                    class="form-control custom-input" id="coupon-code"
+                                                    placeholder="Apply Coupon" aria-label="Example input"
+                                                    aria-describedby="button-addon1" name="coupon_code">
+                                                <button style="margin-right:450px;" class="btn btn-primary"
+                                                    type="submit" id="button-addon1" data-mdb-ripple-color="dark">
+                                                    Redeem
+                                                </button>
+                                            </div>
+                                        </form>
+                                        {%endif%} -->
 
-                        <hr class="my-4">
 
-                        <div class="d-flex justify-content-between mb-5">
-                        <h5 class="text-uppercase">Total price</h5>
-                        <h5 id="total_price">{{total_price}}</h5>
+                                        {% else %}
+                                        <div class="card-body" style="text-align:center;">
+                                            <h2><a class="btn btn-success" href="{% url 'product_view' %}">Add
+                                                    Products</a></h2>
+                                        </div>
+                                        {% endif %}
+                                        <div class="pt-5">
+                                            <h6 class="mb-0"><a href="{% url 'home' %}" class="text-body"><i
+                                                        class="fas fa-long-arrow-alt-left me-2"></i>Back to shop</a>
+                                            </h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 bg-grey">
+                                    <div class="p-5">
+                                        <h3 class="fw-bold mb-5 mt-2 pt-1">Summary</h3>
+                                        <hr class="my-4">
+                                        <div class="d-flex justify-content-between mb-4">
+                                            <h5 class="text-uppercase">Items</h5>
+                                            <h5> {{count}}</h5>
+                                        </div>
+
+
+                                        <hr class="my-4">
+
+                                        <div class="d-flex justify-content-between mb-5">
+                                            <h5  class="text-uppercase">Total price</h5>
+                                            <h5 id="total_price">₹ {{total_price|floatformat}}</h5>
+                                        </div>
+
+
+                                        <button type="button" class="btn btn-dark btn-block btn-lg"
+                                            data-mdb-ripple-color="dark" {% if not cart_items %} disabled {% endif %}><a
+                                                style="text-decoration: none; color:aliceblue"
+                                                href="{% url 'check_out'%}">Proceed</a></button>
+
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
-                
-                        <button type="button" class="btn btn-dark btn-block btn-lg"
-                        data-mdb-ripple-color="dark" {% if not cart_items %} disabled {% endif %}><a style="text-decoration: none; color:aliceblue" href="{% url 'check_out'%}">Proceed</a></button>
-
                     </div>
                 </div>
-                </div>
             </div>
-            </div>
-        </div>
-        </div>
         </div>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+
+    {%for message in messages %}
+    {%if message.tags == 'success' %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src='{% static "js/jquery.toast.min.js" %}'></script>
+    <script>
+        var myToast = $.toast({
+            heading: 'Success',
+            text: '{{message}}',
+            showHideTransition: 'slide',
+            icon: 'success',
+            position: 'top-right'
+        });
+        console.log('message:', message);
+    </script>
+
+
+    {%endif%}
+    {%endfor%}
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src='{% static "js/jquery.toast.js" %}'></script>
+
+    {% for message in messages %}
+    {% if message.tags == 'alert-success' %}
+    <script>
+        $.toast({
+            heading: 'Success',
+            text: '{{ message }}',
+            showHideTransition: 'slide',
+            icon: 'success',
+            position: 'top-right',
+            hideAfter: 5000
+        });
+    </script>
+    {% elif message.tags == 'alert-danger' %}
+    <script>
+        $.toast({
+            heading: 'Error',
+            text: '{{ message }}',
+            showHideTransition: 'slide',
+            icon: 'error',
+            position: 'top-right',
+            hideAfter: 5000
+        });
+    </script>
+    {% elif message.tags == 'alert-info' %}
+    <script>
+        $.toast({
+            heading: 'Error',
+            text: '{{ message }}',
+            showHideTransition: 'slide',
+            icon: 'info',
+            position: 'top-right',
+            hideAfter: 5000
+        });
+    </script>
+    {% endif %}
+    {% endfor %}
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+        crossorigin="anonymous"></script>
+
+        <script>
+            function changeQuantity(proId, count){
+                console.log(proId, count)
+                const qty = $(`#qty-${proId}`).val()
+                console.log(qty)
+                data = new FormData({
+                    "productId": proId,
+                    "qty": qty,
+                    "count": count
+                })
+                $.ajax({
+                    url: "{% url 'changeQuantity'%}",
+                    type: 'POST',
+                    data: data,
+                    dataType: "json"
+                }).done(res =>{
+
+                }).fail(err =>{
+
+                })
+            }
+        </script>
     <script>
         function updateQuantity(input, item_id) {
             var new_quantity = input.value;
             $.ajax({
                 type: "GET",
                 url: "{% url 'check_stock'%}",
-                data: {'item_id': item_id},
-                success: function(data) {
+                data: { 'item_id': item_id },
+                success: function (data) {
                     if (new_quantity > data.stock_level) {
                         alert("Sorry, there are only " + data.stock_level + " of this item in stock.");
-                        
+
                     } else {
                         $.ajax({
                             type: "POST",
                             url: "{% url 'update_quantity'%}",
-                            data: {'item_id': item_id, 'new_quantity': new_quantity},
-                            success: function(data) {
+                            data: { 'item_id': item_id, 'new_quantity': new_quantity },
+                            success: function (data) {
                                 console.log(data)
                                 $('#total_price').text(data.new_total_price);
                             }
@@ -129,10 +249,51 @@
                 }
             });
         }
-        
-</script>
-</body>
+
+    </script>
+
+    <!-- <script>
+        $(document).ready(function () {
+            $('#button-addon1').on('click', function () {
+                var couponCode = $('#coupon-code-input').val();
+                var total_price = $('#total-price-element-id').text(); // Get the current total price
+                applyCoupon(couponCode, total_price); // Pass the total price to the function
+            });
+
+
+            $('#coupon-apply-form').submit(e => {
+                e.preventDefault();
+                console.log('submited')
+
+                $.ajax({
+                    url: `{% url 'apply_coupon' %}`,
+                    type: 'POST',
+                    data:  $('#coupon-apply-form').serialize(),
+                    dataType: 'json',
+                    beforeSend: function (xhr, settings) {
+                        // Include CSRF token in the request headers
+                        xhr.setRequestHeader('X-CSRFToken', $('input[name="coupon_code"]').val());
+                    },
+                }).done(res => {
+                    console.log(res)
+                    document.getElementById('total_price').innerHTML = res.total_price
+                }).fail(err => {
+
+                })
+            })
+
+        });
+
+        function applyCoupon(couponCode, total_price) {
+
+        }
+    </script> -->
+
+
+
+
+    </body>
+
 </html>
 
 <!-- location.reload(); -->
-

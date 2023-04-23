@@ -30,7 +30,7 @@
       $('#id_category').on('change', function() {
         var category_id = $(this).val();
         $.ajax({
-          url: '/get_subcategories/',
+          url: "{%url 'get_subcategories'%}",
           data: {
             'category_id': category_id
           },

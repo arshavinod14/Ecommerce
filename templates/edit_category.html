@@ -5,18 +5,19 @@ Edit Category
 {% block content %}
 
 
-<div class="login">
+<div class="container">
     <h5 class="text-center">Edit Details</h5>
     <form class="needs-validation" method="post">  
         {% csrf_token %}
         <div class="form-group"> 
-
-            <label class="form-label">Edit Name</label>
-            <input class="form-control" type="text"  name="name" value="{{category.name}}">
-
-            <label class="form-label" for="email">Edit Offer</label>
-            <input class="form-control" type="number" name = "offer" value="{{category.offer}}">
-
+            <div class="form-outline mb-4">
+            <label class="form-label" for="form5Example1">Edit Name</label>
+            <input style="width: 500px;" type="text" id="form5Example1" name ="name" class="form-control" value="{{category.name}}">
+            </div>
+            <div class="form-outline mb-4">
+            <label class="form-label" for="form5Example1">Edit Offer</label>
+            <input style="width: 500px;" type="text" id="form5Example2" name="offer" class="form-control" value="{{category.offer}}">
+            </div>
     
         </div>
         

@@ -17,6 +17,7 @@ class Order(models.Model):
 			('Out for delivery', 'Out for delivery'),
 			('Delivered', 'Delivered'),
             ('Cancelled', 'Cancelled'),
+            ('Returned','Returned'),
 			)
     user = models.ForeignKey(Account, on_delete=models.PROTECT)
     total_price = models.DecimalField(max_digits=6, decimal_places=2)

@@ -14,7 +14,7 @@
 <table class="table table-bordered table-dark">
     <thead>
     <tr>
-        <th scope="col">id</th>
+        <th scope="col">Sl No</th>
         <th scope="col">User</th>
         <th scope="col">Product</th>
         <th scope="col">Price</th>
@@ -26,55 +26,70 @@
     <tbody>
         {% for od in order %}
         <tr>
-            <th scope="row">{{od.id}}</th>
+            <th scope="row">{{forloop.counter}}</th>
             <td>{{od.user.name}}</td>
             <td>
                 {% for item in od.items.all %} {{ item.product.name }} ({{ item.quantity }}) {% if not forloop.last %}<br />
                 {% endif %} {% endfor %}
             </td>
             <td>{{od.total_price}}</td>
-            {% if od.payment_method == '1' %}
-            <td>Pending</td>
-            {% else %}
-            {% if od.payment_status %}
-            <td>Done</td>
+            {% if od.payment_method == 'RAZORPAY' %}
+            <td>RAZOR PAY</td>
             {% else %}
             <td>COD</td>
             {% endif %}
-            {% endif %}
             <td>
                 {% if od.delivery_status == 'Pending' %}
-                    <a class="btn btn-success" href="{% url 'delivery_status' od.id %}" onclick = "return confirm('Are you sure you want to change the delivery status?')">Pending</a>
-            
+                <a class="btn btn-success" href="{% url 'delivery_status' od.id %}?page={{ order.number }}&status={{ od.delivery_status }}" onclick="return confirm('Are you sure you want to change the delivery status?')">Pending</a>
+
                 {% elif od.delivery_status == 'Confirmed' %}
-                    <a class="btn btn-success" href="{% url 'delivery_status' od.id %}" onclick = "return confirm('Are you sure you want to change the delivery status?')">Confirmed</a>
+                <a class="btn btn-success" href="{% url 'delivery_status' od.id %}?page={{ order.number }}&status={{ od.delivery_status }}" onclick="return confirm('Are you sure you want to change the delivery status?')">Confirmed</a>
         
                 {% elif od.delivery_status == 'Shipped' %}
-                    <a class="btn btn-success" href="{% url 'delivery_status' od.id %}" onclick = "return confirm('Are you sure you want to change the delivery status?')">Shipped</a>
+                <a class="btn btn-success" href="{% url 'delivery_status' od.id %}?page={{ order.number }}&status={{ od.delivery_status }}" onclick="return confirm('Are you sure you want to change the delivery status?')">Shipped</a>
     
                 {% elif od.delivery_status == 'Out for delivery' %}
-                    <a class="btn btn-success" href="{% url 'delivery_status' od.id %}" onclick = "return confirm('Are you sure you want to change the delivery status?')">Out for delivery</a>
+                <a class="btn btn-success" href="{% url 'delivery_status' od.id %}?page={{ order.number }}&status={{ od.delivery_status }}" onclick="return confirm('Are you sure you want to change the delivery status?')">Out for delivery</a>
                     
                 {% elif od.delivery_status == 'Delivered' %}
                     <p class="btn btn-success">Delivered</p>
+                {% elif od.delivery_status == 'Returned' %}
+                    <p class="btn btn-success">Returned</p>
                 {% elif od.delivery_status == 'Cancelled' %}
                     <p class="btn btn-success">Cancelled</p>
                 {% endif %}
             </td>
-            
-            
-            <!-- <td>{% if od.status %} <a class="text-white bg-danger" style="text-decoration: none;" href="{% url 'cancel_order' od.id %}">Cancel</a> {% else %} Cancelled {% endif %}</td> -->
         </tr>
         {% endfor %}
     </tbody>
-    
-
 </table>
 {% else %}
         <h4 class='text-center alert alert-warning'>No records found </h4>
 {% endif %}
 </div>
 
+{% if order %}
+    <!-- table code goes here -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if order.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ order.previous_page_number }}">&lsaquo; previous</a>
+            {% endif %}
+
+            <span class="current-page">
+                Page {{ order.number }} of {{ order.paginator.num_pages }}
+            </span>
+
+            {% if order.has_next %}
+                <a href="?page={{ order.next_page_number }}">next &rsaquo;</a>
+                <a href="?page={{ order.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endif %}
+
+<br><br>
 
 
 

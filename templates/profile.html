@@ -2,6 +2,7 @@
 {% load static %}
 {% block content %}
 
+
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 <br><br>
 <div class="container light-style flex-grow-1 container-p-y">
@@ -13,30 +14,39 @@
         <div class="row no-gutters row-bordered row-border-light">
             <div class="col-md-3 pt-0">
                 <div class="list-group list-group-flush account-settings-links">
-                    <a class="list-group-item list-group-item-action active" data-toggle="list" href="#account-general">General</a>
+                    <a class="list-group-item list-group-item-action active" data-toggle="list" onclick="getGenerals()" href="#">General</a>
                     <!-- <a class="list-group-item list-group-item-action" data-toggle="list" href="#change-password">Change password</a> -->
-                    <a class="list-group-item list-group-item-action" data-toggle="list" href="{%url 'order_detail' %}">Order Details</a>
+                    <a class="list-group-item list-group-item-action" data-toggle="list"
+                        href="{%url 'order_detail' %}">Order Details</a>
+                    <a class="list-group-item list-group-item-action" id="my-address" data-toggle="list" href="#">My
+                        Address</a>
                 </div>
             </div>
-            <div class="col-md-9">
-                <div class="tab-content">
+            <div id="account-settings" class="col-md-9">
+                <div id="account-settings-content" class="tab-content">
                     <div class="tab-pane fade active show" id="account-general">
                         <form method="POST" enctype="multipart/form-data" action="{% url 'profile' %}">
                             {% csrf_token %}
                             <div class="card-body media align-items-center">
                                 {% if user.profile_picture %}
                                 <img src="{{ user.profile_picture.url }}" alt="profile picture" class="d-block ui-w-80">
+                                {% else %}
+                                <img src="{%static 'img/bg-img/images.jpg'%}" alt="default profile picture"
+                                    class="d-block ui-w-80">
+                                {% endif %}
+
                                 <div class="media-body ml-3">
                                     <div class="input-group">
                                         <div class="custom-file">
-                                            <input type="file" class="custom-file-input" id="profile_picture" name="profile_picture">
-                                            <label class="custom-file-label" for="profile_picture" id="custom-file-label">Choose file</label>
+                                            <input type="file" class="custom-file-input" id="profile_picture"
+                                                name="profile_picture">
+                                            <label class="custom-file-label" for="profile_picture"
+                                                id="custom-file-label">Choose file</label>
                                         </div>
                                     </div>
-                                    <br>
+                                    <br><br>
                                     <!-- <button class="btn btn-primary" type="submit">Save</button> -->
                                 </div>
-                                {% endif %}
                             </div>
                             <hr class="border-light m-0">
                             <div class="card-body">
@@ -48,11 +58,11 @@
                                     <label class="form-label">E-mail</label>
                                     <input type="email" class="form-control mb-1" name="email" value="{{ user.email }}">
                                 </div>
-                                <div class="form-group">
+                                <!-- <div class="form-group">
                                     <label class="form-label">Phone</label>
                                     <input type="tel" class="form-control" name="phone" value="{{ user.phone }}">
-                                </div>
-                            <!-- {%if address%}
+                                </div> -->
+                                <!-- {%if address%}
                             {% for ad in address %}
     <div class="card-body">
         <div class="form-group">
@@ -77,39 +87,181 @@
                             <p>No address is found!</p>
                             {%endif%} -->
 
-                                
+
                             </div>
                     </div>
 
                     <div class="tab-pane fade active show" id="change-password">
                         <div class="card-body pb-2">
                             <form method="POST" action="{% url 'profile' %}">
-                            {% csrf_token %}
-                        <div class="form-group">
-                                <label class="form-label">Current password</label>
-                                <input type="password" class="form-control" name="current_password" placeholder="••••••">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label class="form-label">Current password</label>
+                                    <input type="password" class="form-control" name="current_password"
+                                        placeholder="••••••">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">New password</label>
+                                    <input type="password" class="form-control" name="new_password"
+                                        placeholder="••••••">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Repeat new password</label>
+                                    <input type="password" class="form-control" name="confirm_password"
+                                        placeholder="••••••">
+                                </div>
                         </div>
-                        <div class="form-group">
-                                <label class="form-label">New password</label>
-                                <input type="password" class="form-control" name="new_password" placeholder="••••••">
-                        </div>
-                        <div class="form-group">
-                                <label class="form-label">Repeat new password</label>
-                                <input type="password" class="form-control" name="confirm_password" placeholder="••••••">
-                        </div>
+                        <div style = "margin-bottom:25px;margin-right:30px" class="text-right mt-3">
+                            <button type="submit" class="btn btn-primary">Update profile</button>&nbsp;
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="text-right mt-3">
-        <button type="submit" class="btn btn-primary">Update profile</button>&nbsp;
-    </div>
     </form>
 </div>
 <br><br>
 
+<!-- Button to trigger modal -->
+<style>
+    /* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  
+  /* Modal Content/Box */
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%; /* Could be more or less, depending on screen size */
+   
+  }
+  
+  /* The Close Button */
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+</style>
+<!-- <button id="myBtn">Open Modal</button> -->
+
+<!-- Modal -->
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>Modal content goes here.</p>
+    <form id="update-address-form">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="name">Name <span>*</span></label>
+                <input type="text" class="form-control" id="name" value="{{user.name}}" required name="name">
+            </div>
+
+            <div class="col-12 mb-3">
+                <label for="phone_number">Phone No <span>*</span></label>
+                <input type="number" class="form-control" id="phone" min="0" value="{{user.phone}}" name="phone">
+            </div>
+            <div class="col-12 mb-4">
+                <label for="email_address">Email <span>*</span></label>
+                <input type="email" class="form-control" id="email" value="{{user.email}}" name="email">
+            </div>
+            <div class="col-12 mb-3">
+                <label for="street_address">Address <span>*</span></label>
+                <input type="text" class="form-control mb-3" id="address" value="" name="address1">
+                <!-- <input type="text" class="form-control" id="street_address2" value=""> -->
+            </div>
+
+            <div class="col-12 mb-3">
+                <label for="country">Country <span>*</span></label>
+                <select class="w-100" id="country"  name="country" required>
+                    <option value="usa">United States</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="ger">Germany</option>
+                    <option value="fra">France</option>
+                    <option value="ind">India</option>
+                    <option value="aus">Australia</option>
+                    <option value="bra">Brazil</option>
+                    <option value="cana">Canada</option>
+                </select>
+            </div>
+
+            <div class="col-12 mb-3">
+                <label for="city">State<span>*</span></label>
+                <input type="text"  class="form-control" id="state" value="" name="state">
+            </div>
+
+            <div class="col-12 mb-3">
+                <label for="postcode">Zip <span>*</span></label>
+                <input type="text" class="form-control" id="zip" value="" name="zip">
+                <input type="text" class="form-control" id="id" value="" name="id" hidden>
+            </div>
+            <!-- <hr class="mb-4"> -->
+            <div class="col-12 mb-3">
+                <button type="submit" class="btn essence-btn">Save Address</button>
+            </div>
+
+        </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+<script>
+    // Get the modal
+var modal = $('#myModal');
+
+// Get the button that opens the modal
+var btn = $('.myBtn');
+
+// Get the <span> element that closes the modal
+var span = $('.close');
+
+// When the user clicks the button, open the modal 
+function showModal(addressId){
+    console.log(addressId)
+    getAddress(addressId)
+    
+}
+
+
+// When the user clicks on <span> (x), close the modal
+span.click(function() {
+
+modal.hide();
+});
+
+// When the user clicks anywhere outside of the modal, close it
+//$(window).click(function(event) {
+//if (event.target == modal[0]) {
+//modal.hide();
+//}
+//});
+
+</script>
 <script>
     // Get the custom file input element
     const customFileInput = document.querySelector('.custom-file-input');
@@ -118,25 +270,153 @@
     const customFileLabel = document.querySelector('#custom-file-label');
 
     // Update the custom file input label text when a file is selected
-    customFileInput.addEventListener('change', function(event) {
+    customFileInput.addEventListener('change', function (event) {
         const fileName = event.target.files[0].name;
         customFileLabel.textContent = fileName;
     });
 </script>
 
 <script>
-    $(document).ready(function(){
+    $(document).ready(function () {
         $('a[data-toggle="list"]').on('shown.bs.tab', function (e) {
-        localStorage.setItem('activeTab', $(e.target).attr('href'));
+            localStorage.setItem('activeTab', $(e.target).attr('href'));
         });
-    
+
         var activeTab = localStorage.getItem('activeTab');
-        if(activeTab){
-        $('a[href="' + activeTab + '"]').tab('show');
+        if (activeTab) {
+            $('a[href="' + activeTab + '"]').tab('show');
         }
     });
-    </script>
-    >
+</script>
+
+<!-- Address looping -->
+<script>
+
+    $(document).ready(function () {
+
+        $('#my-address').click(function (e) {
+            e.preventDefault();
+            console.log('clicked my address')
+
+            $.ajax({
+                url: "{% url 'get_address'%}",
+                type: 'get',
+            }).done(res => {
+                console.log('success')
+                const addressData = JSON.parse(res)
+                console.log(addressData)
+                $('#account-settings-content').hide();
+                appendAllAddress(addressData)
+            }).fail(err => {
+                console.log('failed');
+                console.log(err)
+            })
+        })
+    })
+
+    function appendAllAddress(addresses) {
+        $('#address-contents').remove()
+        $(`<div id="address-contents" class="row"></div>`).appendTo('#account-settings')
+        for (const address of addresses) {
+            $(`
+            <div id="${address.id}" class="col-3-md m-2">
+                <div id="card-${address.id}" class="card">
+                    <div class="card-body">
+                        <p class="card-text">${address.name}</p>
+                        <p class="card-text">${address.address1}</p>
+                        <p class="card-text">${address.state}, ${address.zip}</p>
+                        <p class="card-text">${address.country}</p>
+                        <p class="card-text">${address.phone}</p>
+                        <p class="card-text">${address.email}</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex">
+                            <button  onclick="showModal(${address.id})" class="btn btn-primary btn-sm">Edit</button>
+                            <button onclick="deleteAddress(${address.id})" class="btn btn-danger btn-sm">Delete</button>
+                            
+                        </div>
+                    </div>
+                `).appendTo('#address-contents')
+        }
+    }
+    
+    function deleteAddress(addressId) {
+        console.log("dddddddd",addressId)
+        const csrfToken = $('input[name=csrfmiddlewaretoken]').val();
+        $.ajax({
+            url: "{% url 'delete_address' 0 %}".replace('0', addressId),
+            type: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+        }).done(res => {
+            console.log('success')
+            $(`#${addressId}`).remove()
+        }).fail(err => {
+            console.log('failed');
+            console.log(err)
+        })  
+    }
+
+    function getAddress(addressId) {
+        console.log("sssssssss",addressId)
+        const csrfToken = $('input[name=csrfmiddlewaretoken]').val();
+        $.ajax({
+            url: "{% url 'edit_address' 0 %}".replace('0', addressId),
+            type: 'GET',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+        }).done(res => {
+            console.log('success')
+            console.log(res.id)
+            $('#name').val(res.name)
+            $('#address').val(res.address1)
+            $('#id').val(res.id)
+            $('#phone').val(res.phone)
+            $('#state').val(res.state)
+            $('#email').val(res.email)
+            $('#zip').val(res.zip)
+            $('#country').val(res.country)
+            
+            modal.show();
+            
+        }).fail(err => {
+            console.log('failed');
+            console.log(err)
+        })  
+    }
+    
+
+    $(document).ready(function(){
+        $('#update-address-form').submit((e) =>{
+            e.preventDefault()
+            console.log('update address submitted')
+            
+            $.ajax({
+                url: "{%url 'update_address'%}",
+                type: 'post',
+                data:$('#update-address-form').serialize(),
+                dataType: 'json',
+            }).done(res =>{
+                console.log('success', res)
+        
+                modal.hide();
+                
+            }).fail(err =>{
+                console.log('failed')
+            })
+        })
+    })
+
+    function getGenerals(){
+        location.reload()
+    }
+    
 
 
-{% endblock %} 
+</script>
+
+
+
+{% endblock %}

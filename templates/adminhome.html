@@ -157,6 +157,7 @@
   </style>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'css/jquery.toast.css' %}">
 
 </head>
 <body>
@@ -175,7 +176,9 @@
         <li><a href="{% url 'category_management'%}"><i class="fa fa-users"></i>&nbsp;Category</a></li>
         <li><a href="{%url 'brand_manage'%}"><i class="fa fa-copyright"></i>&nbsp;Brand Management</a></li>
         <li><a href="{% url 'order_management' %}"><i class="fa fa-picture-o"></i>&nbsp;Orders</a></li>
-        <li><a href="#"><i class="fa fa-phone"></i>&nbsp;Sales</a></li>
+        <li><a href="{% url 'coupon' %}"><i class="fa fa-picture-o"></i>&nbsp;Coupon</a></li>
+        <li><a href="{% url 'sales' %}"><i class="fa fa-phone"></i>&nbsp;Sales</a></li>
+        <li><a href="{% url 'banner' %}"><i class="fa fa-phone"></i>&nbsp;Banner</a></li>
     </ul>
 </nav>
 
@@ -247,10 +250,173 @@
             </div>
           </div>
         </div>
+<div class="container-fluid">
+        <div class="row">
+          <div class="col-6">
+            <canvas id="myChart1" width="400" height="300"></canvas>
+          </div>
+
+          <div class="col-6">
+            <canvas id="myChart" width="400" height="300"></canvas>
+          </div>
+        </div>
+      </div>
+                
           
     </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src='{% static "js/jquery.toast.js" %}'></script>
+
+<script type="text/javascript" src="//cdn.fusioncharts.com/fusioncharts/latest/fusioncharts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+
+<script>
+  var ctx = document.getElementById('myChart1').getContext('2d');
+  var myChart1 = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+          labels: [{% for i in a %} '{{i.title}}', {% endfor %}],
+  datasets: [{
+      label: 'Number of Products',
+      data: [{% for i in a %} {{ i.price }}, {% endfor %}],
+      backgroundColor: [
+      'rgba(255, 99, 132, 1)',
+      'rgba(54, 162, 235, 1)',
+      'rgba(255, 206, 86, 1)',
+      'rgba(75, 192, 192, 1)',
+      'rgba(153, 102, 255, 1)',
+      'rgba(255, 159, 64, 1)',
+      'rgba(253, 89, 142, 1)',
+      'rgba(54, 152, 235, 1)',
+      'rgba(255, 106, 86, 1)',
+      'rgba(55, 192, 192, 1)',
+      'rgba(253, 102, 255, 1)',
+      'rgba(255, 59, 64, 1)'
+      ],
+          borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)',
+          'rgba(253, 89, 142, 1)',
+          'rgba(54, 152, 235, 1)',
+          'rgba(255, 106, 86, 1)',
+          'rgba(55, 192, 192, 1)',
+          'rgba(253, 102, 255, 1)',
+          'rgba(255, 59, 64, 1)'
+          ],
+              borderWidth: 1
+  }]
+      },
+  options: {
+      scales: {
+          yAxes: [{
+              ticks: {
+                  beginAtZero: true
+              }
+          }]
+      }
+  }
+  });
+</script>
+
+
+<script>
+  var ctx = document.getElementById('myChart').getContext('2d');
+  var myChart1 = new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels: [{% for i in a %} '{{i.title}}', {% endfor %}],
+  datasets: [{
+      label: 'Number of Products',
+      data: [{% for i in a %} {{ i.price }}, {% endfor %}],
+      backgroundColor: [
+      'rgba(255, 99, 132, 1)',
+      'rgba(54, 162, 235, 1)',
+      'rgba(255, 206, 86, 1)',
+      'rgba(75, 192, 192, 1)',
+      'rgba(153, 102, 255, 1)',
+      'rgba(255, 159, 64, 1)',
+      'rgba(253, 89, 142, 1)',
+      'rgba(54, 152, 235, 1)',
+      'rgba(255, 106, 86, 1)',
+      'rgba(55, 192, 192, 1)',
+      'rgba(253, 102, 255, 1)',
+      'rgba(255, 59, 64, 1)'
+      ],
+          borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)',
+              'rgba(253, 89, 142, 1)',
+              'rgba(54, 152, 235, 1)',
+              'rgba(255, 106, 86, 1)',
+              'rgba(55, 192, 192, 1)',
+              'rgba(253, 102, 255, 1)',
+              'rgba(255, 59, 64, 1)'
+          ],
+              borderWidth: 1
+  }]
+      },
+  options: {
+      scales: {
+          yAxes: [{
+              ticks: {
+                  beginAtZero: true
+              }
+          }]
+      }
+  }
+  });
+</script>
+
+{% for message in messages %}
+    {% if message.tags == 'alert-success' %}
+        <script>
+            $.toast({
+                heading: 'Success',
+                text: '{{ message }}',
+                showHideTransition: 'slide',
+                icon: 'success',
+                position:'top-right',
+                hideAfter: 5000 
+            });
+        </script>
+    {% elif message.tags == 'alert-danger' %}
+        <script>
+            $.toast({
+                heading: 'Error',
+                text: '{{ message }}',
+                showHideTransition: 'slide',
+                icon: 'error',
+                position:'top-right',
+                hideAfter: 5000 
+            });
+        </script>
+        {% elif message.tags == 'alert-info' %}
+        <script>
+            $.toast({
+                heading: 'Error',
+                text: '{{ message }}',
+                showHideTransition: 'slide',
+                icon: 'info',
+                position:'top-right',
+                hideAfter: 5000 
+            });
+        </script>
+    {% endif %}
+{% endfor %}
+
+
+
 </body>
 </html>

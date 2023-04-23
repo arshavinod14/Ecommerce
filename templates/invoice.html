@@ -50,7 +50,7 @@ color: #dedbdb
                                     <td>
                                         <div class="py-2"><span class="d-block text-muted"><h6>Order No</h6></span> <span>{{order.order_id}}</span></div>
                                     </td>
-                                    {%if order.order_method %}
+                                    {%if order.payment_method == 'RAZORPAY' %}
                                     <td>
                                         <div class="py-2">
                                             <span class="d-block text-muted"><h6>Payment</h6></span> <span>Razor Pay</span>

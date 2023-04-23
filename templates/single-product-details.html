@@ -72,11 +72,14 @@
             <br><br>
             <!-- Cart & Favourite Box -->
             <div  style="margin-top:50px;" class="cart-fav-box d-flex align-items-center">
-                <!-- Cart -->
-                <button  type="submit" name="addtocart" value="5" class="btn essence-btn"><a href="{%url 'cart' product.id %}">Add to cart</a></button>
+                {%if product.stock <= 0 %}
+                <button class="btn essence-btn"><a href="#">Out of Stock</a></button>
+                {%else%}
+                <a href="#" class="add-to-cart btn essence-btn" data-product-id="{{ product.id }}">Add to Cart</a>
+                {%endif%}
                 <!-- Favourite -->
                 <div class="product-favourite ml-4">
-                    <a id="wishlist-heart" href="{% url 'add_to_wishlist' product.id %}" class="favme fa fa-heart"></a>
+                    <a href="#" class="favme fa fa-heart add-to-wishlist-btn" data-product-id="{{ product.id }}"></a>
                 </div>
                 
             </div>
@@ -191,25 +194,119 @@
     
 </script>
 
-{%endblock%}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-<!-- 
 <script>
-    $("#productSize").change(function(){
-        var selectedSize = $(this).val();
-        var productSizes = {{product.sizes.all|json_script:"sizes" }};
-        var sizeAvailable = false;
-        for (var i = 0; i < productSizes.length; i++) {
-            if (productSizes[i] == selectedSize) {
-                sizeAvailable = true;
-                break;
+    $(document).ready(function() {
+      // Handle click event on "Add to wishlist" button
+    $('.add-to-wishlist-btn').on('click', function(event) {
+        event.preventDefault();
+    
+        // Get product ID from data attribute
+        var productId = $(this).data('product-id');
+        console.log(productId)
+        // Get CSRF token
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+    
+        // Add CSRF token to Ajax request data
+        var data = {'id': productId, 'csrfmiddlewaretoken': csrfToken};
+    
+        // Make Ajax request to add product to wishlist
+        $.ajax({
+        url: "{% url 'add_to_wishlist' 0 %}".replace('0', productId),
+        type: "POST",
+        data: data,
+        dataType: "json",
+        success: function(response) {
+            if (response.message == 'This product is already in your wishlist.') {
+                $.toast({
+                    heading: 'Info',
+                    text: response.message,
+                    showHideTransition: 'slide',
+                    icon: 'info',
+                    position:'top-right',
+                    hideAfter: 5000 
+                });
+            } else {
+                $.toast({
+                    heading: 'Success',
+                    text: response.message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position:'top-right',
+                    hideAfter: 5000 
+                });
             }
-        }
-            else {
-                    alert("Selected size is not available for this product");
+        },
+        
+        error: function(xhr, status, error) {
+            // Display error message
+            alert(error);
         }
     });
-</script> -->
+    });
+    });
+    </script>
+    
+<script>
+    $(document).ready(function() {
+    // Handle click event on "Add to cart" button
+    $('a.add-to-cart').on('click', function(event) {
+        event.preventDefault();
+        
+        // Get product ID from data attribute
+        var productId = $(this).data('product-id');
+        
+        // Get CSRF token
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        
+        // Add CSRF token to Ajax request data
+        var data = {'id': productId, 'csrfmiddlewaretoken': csrfToken};
+        
+        // Send Ajax request
+        $.ajax({
+        url: "{% url 'add_to_cart' 0 %}".replace('0', productId),
+        type: "POST",
+        data: data,
+        dataType: "json",
+        success: function(response) {
+            if (response.success) {
+                // Display success message
+                $.toast({
+                    heading: 'Success',
+                    text: response.message,
+                    showHideTransition: 'slide',
+                    icon: 'success',
+                    position: {
+                        right:20,
+                        top: 60
+                    },
+                    hideAfter: 5000 
+                });
+                
+                // Update cart count
+                $('#essenceCartBtn span').text(response.count);
+            }
+        },
+        
+        error: function(xhr, status, error) {
+            // Display error message
+            $.toast({
+            heading: 'Error',
+            text: error,
+            showHideTransition: 'slide',
+            icon: 'error',
+            position:'top-right',
+            hideAfter: 5000 
+            });
+        }
+        });
+    });
+    });
+    
+    </script>
+
+{%endblock%}
 
 
 

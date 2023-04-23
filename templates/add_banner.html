@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}
+Edit Brand
+{% endblock %}
+{% block content %}
+
+<div class="container">
+    <h5 class="text-center">Add Banner</h5>
+    <form class="needs-validation" id="add-banner-form" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group"> 
+            <div class="form-outline mb-4">
+            <label class="form-label" for="form5Example1">Title 1</label>
+            <input style="width:500px"  type="text" class="form-control" name="title1" required>
+        </div>
+
+
+        <div class="form-group"> 
+            <div class="form-outline mb-4">
+            <label class="form-label" for="form5Example1">Title 2</label>
+            <input style="width:500px"  class="form-control" type="text" name="title2" required>
+        </div>
+
+
+        <div class="form-group"> 
+            <div class="form-outline mb-4">
+            <label class="form-label" for="form5Example1">Image</label>
+        <input style="width:500px"  class="form-control"type="file" name="image1" required>
+            </div>
+
+        <div class="form-group"> 
+            <div class="form-outline mb-4">
+            <label class="form-label" for="form5Example1">Tag</label>
+        <input style="width:500px" class="form-control" type="text" name="tag" required>
+            </div>
+
+        <input class="btn btn-secondary" type="submit" value="Submit">
+    </form>    
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#add-banner-form').submit((e) => {
+            e.preventDefault()
+            $.ajax({
+                url: "{%url 'add_banner' %}",
+                type: 'post',
+                data:$('#add-banner-form').serialize(),
+                }).done(res =>{
+                console.log('success', res)
+        
+                modal.hide();
+                
+            }).fail(err =>{
+                console.log('failed')
+            })
+        })
+    })
+</script>
+{% endblock %}

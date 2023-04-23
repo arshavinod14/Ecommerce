@@ -33,6 +33,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# DEBUG = False
+# ALLOWED_HOSTS = ['*']
+
+
 
 # Application definition
 
@@ -58,6 +62,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    
 ]
 
 ROOT_URLCONF = "ecom.urls"
@@ -81,6 +86,8 @@ TEMPLATES = [
 WSGI_APPLICATION = "ecom.wsgi.application"
 
 AUTH_USER_MODEL = 'store.Account'
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -152,5 +159,6 @@ MESSAGE_TAGS = {
         messages.WARNING: 'alert-warning',
         messages.ERROR: 'alert-danger',
 }
+
 
 
