@@ -14,36 +14,6 @@ from django.views.decorators.cache import cache_control
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 import razorpay
-from django.db.models import Q
-
-
-# def product_view(request):
-#     if request.user.is_authenticated:
-#         products = Product.objects.all()
-#         category = Category.objects.all()
-#         size = Size.objects.all()
-#         brand = Brand.objects.all()
-#         count_p = Product.objects.all().count()
-#         cart_items = CartItems.objects.filter(user=request.user)
-#         count = cart_items.count()
-#         context = {
-#             'category': category,
-#             'products': products,
-#             'size': size,
-#             'count_p':count_p,
-#             'count':count,
-#             'brand':brand,
-#         }
-#     # print(products)
-#         return render(request, 'products.html', context)
-    
-#     products = Product.objects.all()
-#     category = Category.objects.all()
-#     guest = {
-#         'products':products,
-#         'category':category,
-#     }
-#     return render(request,'products.html',guest)
 
 
 def product_view(request):
@@ -74,15 +44,21 @@ def product_view(request):
 
     category = Category.objects.all()
     s = []
-    for i in category:
+    for category in Category.objects.all():
+        subcategories = SubCategory.objects.filter(category=category)
+        subcategory_list = [{
+            'id': subcategory.id,
+            'name': subcategory.name
+        } for subcategory in subcategories]
         s.append({
-            'id':i.id,
-            'name':i.name,
-            'subcategory':SubCategory.objects.filter(category=i.id).values()
+            'id': category.id,
+            'name': category.name,
+            'subcategories': subcategory_list
         })
+
     size = Size.objects.all()
     brand = Brand.objects.all()
-    count_p = Product.objects.all().count()
+    count_p = products_list.count()
     
     
     print("dddddddddddddd",request.GET)
@@ -253,20 +229,6 @@ def check_stock(request):
         data = {'stock_level': stock_level}
         return JsonResponse(data)
     
-# def apply_coupon(request):
-#     if request.method == 'POST':
-#         coupon = request.POST.get('coupon_code')
-#         couponDetail = Coupon.objects.get(code=coupon)
-#         cartDetails = CartItems.objects.filter(user=request.user)
-#         total_price = 0
-#         for obj in cartDetails:
-#             discountAmount = (obj.total_price * Decimal(couponDetail.discount)) / 100
-#             obj.total_price -= discountAmount
-#             obj.applied_coupon = couponDetail
-#             obj.save()
-#             total_price += obj.total_price
-
-#         return JsonResponse({'message': 'Coupon has been applied.', 'total_price': total_price})
 
 def apply_coupon(request):
     if request.method == 'POST':
@@ -334,8 +296,6 @@ def check_out(request):
         
 
 
-    cart_items = CartItems.objects.filter(user=request.user)
-    count = cart_items.count()
 
     order_currency = 'INR'
     print("dddd",int(total_price)*100)
@@ -346,7 +306,7 @@ def check_out(request):
 
     payment_id = payment['id']
     
-    context = {'cartitems': cart_items, 'total_price': total_price, 'count': count, 'ad': ad, 'selected_address': selected_address,'payment_id':payment_id, "code": coupon}
+    context = {'cartitems': cart_items, 'total_price': total_price, 'ad': ad, 'selected_address': selected_address,'payment_id':payment_id, "code": coupon}
     return render(request, 'checkout.html', context)
 
 def changeQuantity(request):
@@ -380,7 +340,7 @@ def sort_products(request):
     else:
         products = Product.objects.all()
 
-    count_p = Product.objects.all().count()
+    count_p = products.count()
     brand = Brand.objects.all()
     category = Category.objects.all()
     context = {'products': products,'count_p':count_p,'brand':brand,'category':category}

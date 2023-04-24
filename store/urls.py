@@ -10,7 +10,6 @@ urlpatterns = [
     path("otp/",views.otp,name='otp'),
     path("otp_verify/",views.otp_verify,name='otp_verify'),
     
-    path("check/",views.check,name='check'),
     path("address/",views.address,name='address'),
 
     path('profile/',views.profile,name='profile'),
@@ -24,6 +23,9 @@ urlpatterns = [
     path('wishlist/',views.wishlist,name='wishlist'),
     path('remove_wishlist/<int:id>/',views.remove_wishlist,name='remove_wishlist'),
     path('search/',views.search,name='search'),
+
+    path('blog/',views.blog,name='blog'),
+    path('contact/',views.contact,name='contact'),
 
     
 

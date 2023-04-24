@@ -7,16 +7,14 @@ from AdminPanel.models import Banner
 from store.models import Account
 from product.models import Coupon, Product,Category,SubCategory
 from order.models import Order,OrderItem
-from django.contrib.auth.models import User
 from .forms import *
 from product.forms import *
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.contrib.postgres.search import SearchVector
 from django.views.decorators.cache import never_cache
 from django.http import JsonResponse
 from django.db.models import Sum
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator
 from django.db.models import Sum
 from datetime import datetime
 
@@ -27,8 +25,6 @@ from datetime import datetime
 def adminLogin(request):
     if request.user.is_authenticated and request.user.is_staff and request.user.is_admin:
         return redirect(adminHome)
-    # if request.user.is_authenticated:
-    #     return redirect()
     if request.method=='POST':
             email = request.POST['email']
             password = request.POST['password']
@@ -38,7 +34,6 @@ def adminLogin(request):
                     messages.error(request, "You are not authorized to access this webpage!!!")
                     return render(request, 'admin_login.html')
                 login(request,user)
-                #messages.success(request, 'Successfully logged in')
                 return redirect(adminHome)
             else:
                 messages.error(request, 'EmailId or Password is wrong!')
@@ -50,7 +45,6 @@ def adminLogin(request):
 @never_cache
 def adminHome(request):
     if request.user.is_authenticated and request.user.is_staff:
-        print('Testing')
         order = Order.objects.all()
         products = Product.objects.all()
         customers = Account.objects.all()
@@ -65,7 +59,7 @@ def adminHome(request):
             z = OrderItem.objects.filter(product_id=i.id).values('order')
             o = Order.objects.filter(id__in=z,delivery_status='Delivered').aggregate(Sum('total_price'))
 
-            print(o)
+
             if o['total_price__sum'] is None or o is None:
                 a.append({'title':i.name,'price':0})
             else:
@@ -119,9 +113,7 @@ def admin_profile(request):
 def user_management(request):
     if request.user.is_authenticated and request.user.is_staff:
         records = Account.objects.all().order_by('id')
-        print(records)
         if request.method == 'GET'and request.GET.get('search') is not None:
-            print(request.GET)
             search_query = request.GET.get('search')
             records = Account.objects.annotate(search=SearchVector('name','email')).filter(search=request.GET.get('search'))
             paginator = Paginator(records, 5)
@@ -136,6 +128,7 @@ def user_management(request):
         context = {'records': page_obj, 'paginator': paginator}
         return render(request, 'user_management.html',context)
     return redirect(adminLogin)
+
 
 def block(request,id):
     if request.user.is_authenticated and request.user.is_active and request.user.is_staff:
@@ -156,9 +149,7 @@ def block(request,id):
 def product_management(request):
     if request.user.is_authenticated and request.user.is_staff:
         products = Product.objects.all().order_by('id')
-        print(products)
         if request.method == 'GET' and request.GET.get('search') is not None:
-            print(request.GET)
             search_query = request.GET.get('search')
             products = Product.objects.annotate(search=SearchVector('name')).filter(search=search_query)
             paginator = Paginator(products, 5)
@@ -182,8 +173,6 @@ def add_product(request):
         form = ProductForm()
         if request.method == 'POST':
             form = ProductForm(request.POST, request.FILES)
-            print("->>>>",request.POST)
-            print("->>>>",request.FILES)
             
             if form.is_valid():
                 form.save()
@@ -193,8 +182,6 @@ def add_product(request):
         else:
             categories = Category.objects.all()
             subcategories = SubCategory.objects.all()
-            # size = Size.objects.all()
-            # print("Form error:",form.errors)
             return render(request, 'add_product.html', {'form': form, 'categories': categories, 'subcategories': subcategories})
             
     return redirect(product_management)
@@ -239,32 +226,19 @@ def get_subcategories(request):
 def category_management(request):
     if request.user.is_authenticated and request.user.is_staff:
         category= Category.objects.all().order_by('id')
-        print(category)
         if request.method == 'GET'and request.GET.get('search') is not None:
-            print(request.GET)
             category= Category.objects.annotate(search=SearchVector('name')).filter(search=request.GET.get('search'))
             return render(request, 'category_management.html',{'category':category})
 
         return render(request, 'category_management.html',{'category':category})
     return redirect(category_management)
 
-# def add_category(request):
-#     if request.user.is_authenticated and request.user.is_staff:
-#         if request.method == 'POST':
-#             name = request.POST['name']
-#             offer = request.POST['offer']
-#             slug = request.POST['slug']
-#             category = Category(name=name, offer=offer,slug=slug)
-#             category.save()
-#             return redirect(category_management)
-#     return render(request, 'add_category.html')
 
 def add_category(request):
     if request.user.is_authenticated and request.user.is_staff:
         if request.method == 'POST':
             name = request.POST['name']
             offer = request.POST['offer']
-            # slug = request.POST['slug']
             try:
                 if Category.objects.filter(name__iexact=name).exists():
                     messages.error(request, "Category already exists")
@@ -302,9 +276,7 @@ def delete_category(request,id):
 def sub_category(request):
     if request.user.is_authenticated and request.user.is_staff:
         subcategory= SubCategory.objects.all().order_by('id')
-        print(subcategory)
         if request.method == 'GET' and request.GET.get('search') is not None:
-            print(request.GET)
             search_query = request.GET.get('search')
             subcategory = Product.objects.annotate(search=SearchVector('name')).filter(search=search_query)
             paginator = Paginator(subcategory, 5)
@@ -321,29 +293,14 @@ def sub_category(request):
     return redirect(adminHome)
 
 
-# def add_sub_cat(request):
-#     if request.user.is_authenticated and request.user.is_staff:
-#         if request.method == 'POST':
-#             name = request.POST['name']
-#             # slug = request.POST['slug']
-#             category_id = request.POST['category']
-#             category = Category.objects.get(id=category_id)
-#             subcategory=SubCategory(name=name,category=category)
-#             subcategory.save()
-#             messages.success(request, "SubCategory Added")
-#             return redirect(sub_category)
-#         categories = Category.objects.all()
-#         return render(request, 'add_subcategory.html',{'categories': categories})
-#     return redirect(sub_category)
 
 def add_sub_cat(request):
     if request.user.is_authenticated and request.user.is_staff:
         if request.method == 'POST':
-            name = request.POST['name'] # convert name to lower case
+            name = request.POST['name']
             category_id = request.POST['category']
             category = Category.objects.get(id=category_id)
 
-            # check if subcategory with same name already exists in the category
             if SubCategory.objects.filter(name__iexact=name, category=category).exists():
                 messages.error(request, "Subcategory already exists in the selected category")
             else:
@@ -358,18 +315,6 @@ def add_sub_cat(request):
     return redirect(sub_category)
 
 
-
-
-# def edit_sub_cat(request,id):
-#     if request.user.is_authenticated:
-#         if request.method == 'POST':
-#             name = request.POST['name']
-#             SubCategory.objects.filter(id=id).update(name=name)
-#         else:
-#             data = SubCategory.objects.get(id=id)
-#             return render(request, 'edit_subcategory.html',{'subcategory':data})
-#     messages.success(request, "SubCategory Updated")
-#     return redirect(sub_category)
 def edit_sub_cat(request, id):
     if request.user.is_authenticated:
         subcategory = SubCategory.objects.get(id=id)
@@ -378,12 +323,10 @@ def edit_sub_cat(request, id):
             name = request.POST['name']
             category = subcategory.category
 
-            # Check if the updated name already exists in the same category
             if SubCategory.objects.filter(category=category, name__iexact=name).exclude(id=id).exists():
                 messages.error(request, "Subcategory with this name already exists in this category!")
                 return redirect('edit_subcategory', id=id)
 
-            # Update the subcategory name
             subcategory.name = name
             subcategory.save()
 
@@ -409,7 +352,6 @@ def brand_manage(request):
     if request.user.is_authenticated and request.user.is_staff:
         brand = Brand.objects.all().order_by('id')
         if request.method == 'GET' and request.GET.get('search') is not None:
-            print(request.GET)
             search_query = request.GET.get('search')
             brand = Brand.objects.annotate(search=SearchVector('name')).filter(search=search_query)
             paginator = Paginator(brand, 5)
@@ -425,15 +367,7 @@ def brand_manage(request):
         return render(request, 'brand_manage.html', context)
     return redirect(adminHome)
 
-# def add_brand(request):
-#     if request.user.is_authenticated and request.user.is_staff:
-#         if request.method == 'POST':
-#             name = request.POST['name']
-#             brand = Brand(name=name)
-#             brand.save()
-#             messages.success(request,'Brand Added successfully')
-#             return redirect(brand_manage)
-#     return render(request, 'add_brand.html')
+
 
 from django.db.models import Q
 
@@ -441,7 +375,6 @@ def add_brand(request):
     if request.user.is_authenticated and request.user.is_staff:
         if request.method == 'POST':
             name = request.POST['name']
-            # check if a brand with the same name already exists
             if Brand.objects.filter(Q(name__iexact=name)).exists():
                 messages.error(request, 'A brand with this name already exists')
             else:
@@ -452,20 +385,8 @@ def add_brand(request):
     return render(request, 'add_brand.html')
 
 
-# def edit_brand(request, id):
-#     if request.user.is_authenticated:
-#         if request.method == 'POST':
-#             name = request.POST['name']
-#             Brand.objects.filter(id=id).update(name=name)
-#         else:
-#             data = Brand.objects.get(id=id)
-#             return render(request, 'edit_brand.html',{'brand':data})
-#     messages.success(request, "Brand Updated")
-#     return redirect(brand_manage)
-
 def edit_brand(request, id):
     if request.user.is_authenticated:
-        print(request.method)
         if request.method == 'POST':
             name = request.POST['name']
             # Check if a brand with the same name already exists for a different ID
@@ -482,18 +403,10 @@ def edit_brand(request, id):
     return redirect(brand_manage)
 
 
-# def delete_brand(request, id):
-#     if request.user.is_authenticated:
-#         brand = Brand.objects.get(id=id)
-#         brand.delete()
-#         messages.success(request, "Deleted brand successfully.")
-#         return redirect(brand_manage)
-#     return redirect(adminHome)
-
 def delete_brand(request, id):
     if request.user.is_authenticated:
         brand = Brand.objects.get(id=id)
-        product_count = brand.product_set.count()  # Get the count of products in the brand
+        product_count = brand.product_set.count() 
         if product_count > 0:
             messages.error(request, f"Cannot delete brand {brand.name} because it has {product_count} products.")
         else:
@@ -507,7 +420,6 @@ def delete_brand(request, id):
 def adminLogout(request):
     if request.user.is_authenticated and request.user.is_staff:
         logout(request)
-        print("LoggedOut")
         messages.success(request, 'Logged Out Successfully')
         return redirect(adminLogin)
     return render(request,'admin_login.html')
@@ -519,11 +431,7 @@ def order_management(request):
         # order = Order.objects.all().order_by('id')
         order = Order.objects.all().order_by('-order_at')  
         order_items = OrderItem.objects.all()
-        print("orderitems-------->",order_items)
-        print(order)
-
         if request.method == 'GET' and request.GET.get('search') is not None:
-            print(request.GET)
             search_query = request.GET.get('search')
             # order = Order.objects.annotate(search=SearchVector('name')).filter(search=search_query)
             order = Order.objects.annotate(search=SearchVector('items__product__name', 'order_id','payment_method', 'delivery_status')).filter(search=search_query).distinct()
@@ -543,7 +451,6 @@ def order_management(request):
 
 
 def delivery_status(request, id):
-    print("eeeeeeee")
     order = Order.objects.get(id=id)
     if order.delivery_status == 'Pending':
         order.delivery_status = 'Shipped'
@@ -557,59 +464,31 @@ def delivery_status(request, id):
     return redirect(url)
 
 
-# def cancel_order(request, id):
-#     order = Order.objects.get(id=id)
-#     if order.delivery_status == 'Delivered':
-#         return HttpResponse('This order has already been delivered and cannot be canceled.')
-#     order.status = False
-#     order.delivery_status = 'Cancelled'
-#     order.save()
-#     return redirect(order_management)
 
-
-
+from django.core.paginator import Paginator
 
 def sales(request):
     if request.user.is_authenticated and request.user.is_staff:
-
         today = datetime.now()
-        orders = Order.objects.filter(order_at__year=today.year, order_at__month=today.month)
+        #orders = Order.objects.filter(order_at__year=today.year, order_at__month=today.month)
+        orders = Order.objects.filter(delivery_status='Delivered',order_at__year=today.year, order_at__month=today.month).order_by('-order_at')
 
 
         total_sales = orders.aggregate(Sum('total_price'))['total_price__sum'] or 0
-        total_revenue = Order.objects.aggregate(Sum('total_price'))['total_price__sum'] or 0
+        #total_revenue = Order.objects.aggregate(Sum('total_price'))['total_price__sum'] or 0
 
-        # if request.method == 'GET' and request.GET.get('search') is not None:
-        #     print(request.GET)
-        #     search_query = request.GET.get('search')
-        #     # order = Order.objects.annotate(search=SearchVector('name')).filter(search=search_query)
-        #     order = Order.objects.annotate(search=SearchVector('items__product__name', 'order_id','payment_method', 'delivery_status')).filter(search=search_query).distinct()
-        #     paginator = Paginator(order, 5)
-        #     page_number = request.GET.get('page')
-        #     page_obj = paginator.get_page(page_number)
-        #     context = {'order': page_obj, 'search_query': search_query, 'paginator': paginator}
-        #     return render(request, 'sales_report.html',context)
-    
-        # paginator = Paginator(order, 5)
-        # page_number = request.GET.get('page')
-        # page_obj = paginator.get_page(page_number)
+        paginator = Paginator(orders, 10)  
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
 
         context = {
-            'orders': orders,
+            'orders': page_obj,
             'total_sales': total_sales,
-            'total_revenue':total_revenue,
-            # 'order': page_obj, 
-            # 'paginator': paginator,
+            'paginator': paginator,
+            'page_obj': page_obj,
         }
         return render(request, 'sales_report.html', context)
     return redirect(adminLogin)
-
-
-
-
-
-
-
 
 
 import csv
@@ -671,9 +550,7 @@ def sales_csv_report(request):
 def coupon(request):
     if request.user.is_authenticated:
         coupon = Coupon.objects.all().order_by('id')
-        print(coupon)
         return render(request,'coupon.html',{'coupon':coupon})
-
 
 
 def add_coupon(request):
@@ -724,8 +601,7 @@ def delete_coupon(request, id):
 
 def banner(request):
     if request.user.is_authenticated:
-        banner = Banner.objects.all()
-        print(banner)
+        banner = Banner.objects.all() 
         return render(request,'banner.html',{'banner':banner})
         
 

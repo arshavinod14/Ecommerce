@@ -1,24 +1,21 @@
 import json
 import os
-from django.http import HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, render,redirect
+from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-
 from AdminPanel.models import Banner
 from .models import Account,Address
-from product.models import CartItems, Category,Product, SubCategory,Wishlist,GuestCart
+from product.models import Brand, CartItems, Category,Product, SubCategory,Wishlist,GuestCart
 from .forms import *
 from AdminPanel.views import adminHome
 from twilio.rest import Client,TwilioException
 from django.views.decorators.cache import cache_control
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.postgres.search import SearchVector
-from django.contrib.auth.decorators import login_required
-from django.urls import reverse
 from django.http import JsonResponse
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
 num1 = 0
 phone = 0
@@ -29,32 +26,38 @@ def index(request):
         if request.user.is_staff:
             return redirect(adminHome)
         else:
-            cart_items = CartItems.objects.filter(user=request.user)
-            count = cart_items.count()
             banner = Banner.objects.all()
-            products =Product.objects.all()
-            category = request.GET.get('category',None)
-            subcategory = request.GET.get('subcategory',None)
+            products = Product.objects.all()
+            category = request.GET.get('category', None)
+            subcategory = request.GET.get('subcategory', None)
             if category:
                 products_list = Product.objects.filter(category=request.GET.get('category'))
 
             if subcategory:
                 products_list = Product.objects.filter(subcategory=request.GET.get('subcategory'))
-        
+
             category = Category.objects.all()
-            context = { 
-                        'category':category,
-                        'banner': banner,
-                        'count':count,
-                        'products':products}
+            s = []
+            for i in category:
+                s.append({
+                    'id': i.id,
+                    'name': i.name,
+                    'subcategories': SubCategory.objects.filter(category=i).values()
+                })
             
-            return render(request,'index.html',context)
+            context = {
+                'category': s,
+                'banner': banner,
+                'products': products
+            }
+            
+            return render(request, 'index.html', context)
     else:
         banner = Banner.objects.all()
-        products =Product.objects.all() 
-        context = {'banner': banner,
-                'products':products}
-        return render(request,'index.html',context)
+        products = Product.objects.all() 
+        context = {'banner': banner, 'products': products}
+        return render(request, 'index.html', context)
+
         
 @cache_control(no_cache=True, must_revalidate=True)
 def loginacc(request):
@@ -155,53 +158,6 @@ def otp_verify(request):
     return render(request, 'otp.html')
 
 
-
-# def signup(request):
-#     if request.method == 'POST':
-#         form = SignUpForm(request.POST)
-#         if form.is_valid():
-#             name = form.cleaned_data['name']
-#             email = form.cleaned_data['email']
-#             phone = form.cleaned_data['phone']
-#             password = form.cleaned_data['password']
-#             confirm_password = form.cleaned_data['confirm_password']
-
-#             if password != confirm_password:
-#                 messages.error(request, "Passwords do not match!")
-#                 return redirect('signup')
-
-
-#             try:
-#                 Account.objects.get(email=email)
-#                 messages.error(request, "User with this email already exists!")
-#                 return redirect('signup')
-#             except ObjectDoesNotExist:
-#                 pass
-
-#             try:
-#                 Account.objects.get(phone=phone)
-#                 messages.error(request, "User with this phone number already exists!")
-#                 return redirect('signup')
-#             except ObjectDoesNotExist:
-#                 pass
-
-            
-#             user = Account.objects.create_user(name, email, phone, password)
-#             user.name = name
-#             user.email = email
-#             user.phone = phone
-#             user.save()
-
-#             messages.success(request, "Registered Successfully!")
-#             return redirect(loginacc)
-
-#     else:
-#         form = SignUpForm()
-
-#     return render(request, 'signup.html', {'form': form})
-
-
-
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -273,9 +229,6 @@ def sign_out(request):
         return redirect(index)
 
 
-def check(request):
-    return render(request,'otp.html')
-
 def address(request):
     print("11111111111")
     if request.user.is_authenticated:
@@ -297,102 +250,6 @@ def address(request):
             # return redirect('check_out')
         return redirect('check_out')
     return redirect(index)
-
-# def address(request):
-#     if request.user.is_authenticated:
-#         if request.method == 'POST':
-#             name = request.POST['name']
-#             phone = request.POST['phone']
-#             email = request.POST['email']
-#             address1 = request.POST['address1']
-#             country = request.POST['country']
-#             state = request.POST['state']
-#             zip = request.POST['zip']
-            
-#             # Perform validation on the form data
-#             errors = {}
-#             if not name:
-#                 errors['name'] = 'Name is required'
-#             if not phone:
-#                 errors['phone'] = 'Phone number is required'
-#             if not email:
-#                 errors['email'] = 'Email is required'
-#             if not address1:
-#                 errors['address1'] = 'Address is required'
-#             if not country:
-#                 errors['country'] = 'Country is required'
-#             if not state:
-#                 errors['state'] = 'State is required'
-#             if not zip:
-#                 errors['zip'] = 'Zip code is required'
-            
-#             # If there are validation errors, render the address form with error messages
-#             if errors:
-#                 return render(request, 'address.html', {'errors': errors})
-            
-#             # If there are no validation errors, save the address and redirect to checkout
-#             add = Address(user=request.user, name=name, phone=phone, email=email, address1=address1,
-#                         country=country, state=state, zip=zip)
-#             add.save()
-#             return redirect('check_out')
-        
-#         # If request method is not POST, render the address form
-#         return render(request, 'address.html')
-    
-#     # If user is not authenticated, redirect to login page
-#     return redirect('login')
-
-
-
-
-
-
-# @login_required(login_url=loginacc)
-# def profile(request):
-#     addresses = Address.objects.filter(user=request.user)
-#     user = request.user
-#     if request.method == 'POST':
-#         profile_picture = request.FILES.get('profile_picture')
-#         if profile_picture:
-#             request.user.profile_picture = profile_picture
-#             messages.success(request, 'Profile Picture has been updated!')
-#             request.user.save()
-
-#         name = request.POST.get('name')
-#         phone = request.POST.get('phone')
-#         email = request.POST.get('email')
-#         current_password = request.POST.get('current_password')
-#         new_password = request.POST.get('new_password')
-#         confirm_password = request.POST.get('confirm_password')
-
-#         # user = request.user
-#         if (user.name != name) or (user.email != email) or (user.phone != phone):
-#             user.name = name
-#             user.email = email
-#             user.phone = phone
-#             user.save()
-#             messages.success(request, 'Profile updated successfully')
-
-
-#         if current_password and new_password and confirm_password:
-#             if user.check_password(current_password):
-#                 if new_password == confirm_password:
-#                     user.set_password(new_password)
-#                     user.save()
-#                     messages.success(request, 'Password updated successfully')
-#                 else:
-#                     messages.error(request, 'New password and confirm password do not match')
-#             else:
-#                 messages.error(request, 'Current password is incorrect')
-
-#         return redirect('profile')
-    
-#     context = {
-#         'user' : user,
-#         'addresses' :addresses,
-#     }
-
-#     return render(request, 'profile.html',context)
 
 
 def profile(request):
@@ -432,28 +289,12 @@ def profile(request):
                 else:
                     messages.error(request, 'Current password is incorrect')
                     print(messages)
-
+            
             return redirect('profile')
         return render(request, 'profile.html')
     messages.error(request,'login to view the profile')
     return redirect(loginacc)
 
-# def update_address(request, address_id):
-#     address = Address.objects.get(id=address_id)
-
-#     if request.method == 'POST':
-#         address.address1 = request.POST.get('address')
-#         address.state = request.POST.get('state')
-#         address.zip = request.POST.get('zip')
-#         address.country = request.POST.get('country')
-#         address.save()
-#         messages.success(request, 'Address updated successfully')
-#         return redirect('profile')
-
-#     context = {
-#         'address': address
-#     }
-#     return render(request, 'edit_address.html', context)
 
 def get_address(request):
     print('got to address function')
@@ -501,7 +342,7 @@ def update_address(request):
         address.country = country
         address.zip = zip
         address.save()
-        
+        messages.success(request, 'Address updated successfully')
         return JsonResponse({'success':True})
 
 
@@ -538,11 +379,10 @@ def wishlist(request):
     if request.user.is_authenticated:
         wishlist_items = Wishlist.objects.filter(user=request.user)
         print(wishlist_items)
-        cart_items = CartItems.objects.filter(user=request.user)
-        count = cart_items.count() 
+
         context = {
             'wishlist_items':wishlist_items,
-            'count' :count,
+
         }
         return render(request, 'wishlist.html',context)
     else:
@@ -550,10 +390,6 @@ def wishlist(request):
 
         return redirect('login')
 
-# def remove_wishlist(request,id):
-#     if request.user.is_authenticated:
-#         Wishlist.objects.get(id=id).delete()
-#     return redirect(wishlist)
 
 def remove_wishlist(request, id):
     if request.user.is_authenticated:
@@ -569,29 +405,26 @@ def remove_wishlist(request, id):
         messages.error(request, "Please log in to remove products from your wishlist.")
         return redirect('login')
 
-
-
-
-
-
 def search(request):
-    if request.user.is_authenticated:
-        search_query = request.GET.get('search')
-        if search_query:
-            print(f"Search query: {search_query}")
-            try:
-                products = Product.objects.annotate(search=SearchVector('name')).filter(search=search_query)
-                print(f"Number of products found: {products.count()}")
-                return render(request, 'products.html', {'products': products})
-            except Exception as e:
-                print(f"Error during search: {e}")
-                return HttpResponseBadRequest()
-    return redirect('index')
-
-
-
-
+    search_query = request.GET.get('search')
+    if search_query:
+        search_vector = SearchVector('name', 'category__name', 'subcategory__name')
+        search_query = SearchQuery(search_query, config='english')
+        products = Product.objects.annotate(
+            search=search_vector, 
+            rank=SearchRank(search_vector, search_query)
+        ).filter(search=search_query).order_by('-rank')
+        count_p = products.count()
+        brand = Brand.objects.all()
+        category = Category.objects.all()
+        return render(request, 'products.html', {'products': products,'count_p':count_p,'brand':brand,'category':category})
 
 def handler404(request, exception):
     return render(request, '404.html', status=404)
 
+
+def blog(request):
+    return render(request,'blog.html')
+
+def contact(request):
+    return render(request,'contact.html')

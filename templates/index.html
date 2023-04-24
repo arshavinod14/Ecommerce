@@ -78,27 +78,26 @@
                         <ul>
                             <li><a href="#">Shop</a>
                                 <div class="megamenu">
+                                    {% for category in category %}
                                     <ul class="single-mega cn-col-4">
-                                        <li class="title">Women's Collection</li>
+                                        <li class="title"><a href="{% url 'product_view' %}?category={{ category.id }}">{{ category.name }}</a></li>
 
-                                    </ul>
-                                    <ul class="single-mega cn-col-4">
-                                        <li class="title">Men's Collection</li>
+                                        {% if category.subcategories %}
+                                        <ul>
+                                            {% for subcategory in category.subcategories %}
+                                                <li><a href="{% url 'product_view' %}?category={{ category.id }}&subcategory={{ subcategory.id }}">{{ subcategory.name }}</a></li>
+                                            {% endfor %}
 
+                                        </ul>
+                                        {% endif %}    
                                     </ul>
-                                    <!-- <ul class="single-mega cn-col-4">
-                                        <li class="title">Kid's Collection</li>
-                                        <li><a href="shop.html">Dresses</a></li>
-                                        <li><a href="shop.html">Shirts</a></li>
-                                        <li><a href="shop.html">T-shirts</a></li>
-                                        <li><a href="shop.html">Jackets</a></li>
-                                        <li><a href="shop.html">Trench</a></li>
-                                    </ul> -->
+                                    {% endfor %}
                                     <div class="single-mega cn-col-4">
-                                        <img src="{% static 'img/bg-img/bg-6.jpg' %}" alt="">
+                                        <img src="img/bg-img/bg-6.jpg" alt="">
                                     </div>
                                 </div>
                             </li>
+                            
                             <li><a href="#">Contents</a>
                                 <ul class="dropdown">
                                     <li><a href="{%url 'home'%}">Home</a></li>
@@ -108,8 +107,8 @@
                                     <li><a href="{%url 'view_cart'%}">Cart</a></li>
                                 </ul>
                             </li>
-                            <li><a href="blog.html">Blog</a></li>
-                            <li><a href="contact.html">Contact</a></li>
+                            <li><a href="{% url 'blog'%}">Blog</a></li>
+                            <li><a href="{% url 'contact'%}">Contact</a></li>
 
                         </ul>
                     </div>
@@ -255,7 +254,7 @@
                             <div class="cta--text">
                                 <h6>-60%</h6>
                                 <h2>Global Sale</h2>
-                                <a href="#" class="btn essence-btn">Buy Now</a>
+                                <a href="{% url 'product_view' %}" class="btn essence-btn">Buy Now</a>
                             </div>
                         </div>
                     </div>
@@ -288,7 +287,7 @@
                             <div class="product-img">
                                 <img src="/media/{{product.image1}}" alt="product_image1">
                                 <!-- Hover Thumb -->
-                                <img class="hover-img" src="/media/{{product.image2}}" alt="product_image2">
+                                <a href="{% url 'product_detail' product.id %}"><img class="hover-img" src="/media/{{product.image2}}" alt="product_image2"></a>
                                 <!-- Favourite -->
                                 <div class="product-favourite">
                                     <!-- <a href="{% url 'add_to_wishlist' product.id %}" class="favme fa fa-heart"></a> -->
@@ -299,7 +298,7 @@
                             <!-- Product Description -->
                             <div class="product-description">
                                 <span>{{ product.brand }}</span>
-                                <a href="{% url 'product_detail' product.id %}">
+                                <a href="single-product-details.html">
                                     <h6>{{ product.name }}</h6>
                                 </a>
                                 <p class="product-price">₹ {{ product.price|floatformat}}</p>
@@ -372,8 +371,8 @@
                         <div class="footer_menu">
                             <ul>
                                 <li><a href="shop.html">Shop</a></li>
-                                <li><a href="blog.html">Blog</a></li>
-                                <li><a href="contact.html">Contact</a></li>
+                                <li><a href="{% url 'blog'%}">Blog</a></li>
+                                <li><a href="{% url 'contact'%}">Contact</a></li>
                             </ul>
                         </div>
                     </div>
@@ -403,7 +402,7 @@
                         <div class="subscribtion_form">
                             <form action="#" method="post">
                                 <input type="email" name="mail" class="mail" placeholder="Your email here">
-                                <button type="submit" class="submit"><i class="fa fa-long-arrow-right"
+                                <button type="button" class="submit"><i class="fa fa-long-arrow-right"
                                         aria-hidden="true"></i></button>
                             </form>
                         </div>

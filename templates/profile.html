@@ -261,6 +261,7 @@ modal.hide();
 //}
 //});
 
+
 </script>
 <script>
     // Get the custom file input element
@@ -380,12 +381,14 @@ modal.hide();
             $('#country').val(res.country)
             
             modal.show();
+        
             
         }).fail(err => {
             console.log('failed');
             console.log(err)
         })  
     }
+    
     
 
     $(document).ready(function(){
@@ -402,6 +405,7 @@ modal.hide();
                 console.log('success', res)
         
                 modal.hide();
+                location.reload();
                 
             }).fail(err =>{
                 console.log('failed')
