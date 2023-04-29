@@ -17,6 +17,11 @@ from django.db.models import Sum
 from django.core.paginator import Paginator
 from django.db.models import Sum
 from datetime import datetime
+import csv
+import xlwt
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 
 
 # Create your views here.
@@ -59,18 +64,47 @@ def adminHome(request):
             z = OrderItem.objects.filter(product_id=i.id).values('order')
             o = Order.objects.filter(id__in=z,delivery_status='Delivered').aggregate(Sum('total_price'))
 
-
             if o['total_price__sum'] is None or o is None:
                 a.append({'title':i.name,'price':0})
             else:
                 a.append({'title':i.name,'price':o['total_price__sum']})
+            
+        deliveredOrder = Order.objects.filter(delivery_status='Delivered')
+        days=['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        months =['January','February',' March','April','May','June','July','August','September','October','November','December']
+        daily = []
+        monthly = []
+
+        #daily wise sales 
+        for day in days:
+            count = 0
+            for dayObj in deliveredOrder:
+                dayStr = dayObj.order_at.strftime("%A")
+                if day == dayStr:
+                    count += 1
+               
+            daily.append(count)
+        
+        #monthly wise sales
+        for month in months:
+            count = 0
+            for monthObj in deliveredOrder:
+                monthStr = monthObj.order_at.strftime("%B")
+                if month == monthStr:
+                    count += 1
+               
+            monthly.append(count)
+
         context = {
                 'order_count':order,
                 'total_price': total_price,
                 'product_count':product,
                 'customers_count': customers,  
                 'a':a,
+                "daily":daily,
+                "monthly":monthly
                 }
+        
         
         return render(request, 'adminhome.html',context)
     return redirect(adminLogin)
@@ -115,7 +149,7 @@ def user_management(request):
         records = Account.objects.all().order_by('id')
         if request.method == 'GET'and request.GET.get('search') is not None:
             search_query = request.GET.get('search')
-            records = Account.objects.annotate(search=SearchVector('name','email')).filter(search=request.GET.get('search'))
+            records = Account.objects.annotate(search=SearchVector('name','email','phone')).filter(search=request.GET.get('search'))
             paginator = Paginator(records, 5)
             page_number = request.GET.get('page')
             page_obj = paginator.get_page(page_number)
@@ -151,7 +185,7 @@ def product_management(request):
         products = Product.objects.all().order_by('id')
         if request.method == 'GET' and request.GET.get('search') is not None:
             search_query = request.GET.get('search')
-            products = Product.objects.annotate(search=SearchVector('name')).filter(search=search_query)
+            products = Product.objects.annotate(search=SearchVector('name', 'category__name', 'subcategory__name')).filter(search=search_query)
             paginator = Paginator(products, 5)
             page_number = request.GET.get('page')
             page_obj = paginator.get_page(page_number)
@@ -210,11 +244,6 @@ def delete_product(request,id):
         messages.success(request, "Deleted a product successfully.")
         return redirect(product_management)
     return redirect(product_management)
-
-# def fetch_subcategories(request):
-#     category_id = request.GET.get('category_id')
-#     subcategories = SubCategory.objects.filter(category_id=category_id)
-#     return JsonResponse({'subcategories': [{'id': s.id, 'name': s.name} for s in subcategories]})
 
 
 def get_subcategories(request):
@@ -489,14 +518,6 @@ def sales(request):
         }
         return render(request, 'sales_report.html', context)
     return redirect(adminLogin)
-
-
-import csv
-import xlwt
-from django.http import HttpResponse
-from django.template.loader import get_template
-from xhtml2pdf import pisa
-
 
 
 def sales_excel_report(request):

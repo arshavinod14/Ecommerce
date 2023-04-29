@@ -49,12 +49,12 @@
                                                     onclick="this.parentNode.querySelector('input[type=number]').stepDown()">
                                                     <i class="fas fa-minus"></i>
                                                 </button>
-                                                <button type="button" onclick="changeQuantity('{{item.id}}', 1)" class="btn btn-primary btn-sm">+</button>
+                                                <!-- <button type="button" onclick="changeQuantity('{{item.id}}', 1)" class="btn btn-primary btn-sm">+</button> -->
                                                 <input id="qty-{{item.id}}" type="number" name="quantity" min="1" value="{{ item.quantity }}"
                                                     required class="form-control form-control-sm"
                                                     onchange="updateQuantity(this,'{{item.id}}')"
                                                     data-item-id="{{ item.id }}" />
-                                                <button type="button" onclick="changeQuantity('{{item.id}}', -1)" class="btn btn-primary btn-sm">-</button>
+                                                <!-- <button type="button" onclick="changeQuantity('{{item.id}}', -1)" class="btn btn-primary btn-sm">-</button> -->
 
                                             </div>
                                             <div class="col-md-3 col-lg-3 col-xl-2 d-flex"><button type="button"

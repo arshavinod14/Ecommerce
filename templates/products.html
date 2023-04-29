@@ -30,10 +30,7 @@
                 <div class="col-12">
                     <div class="page-title text-center">
                             <h2>SHOP</h2>
-                            <!-- {% for i in category %}
-
-                                <h2>{{ i.name }}</h2>
-                            {% endfor %} -->
+                        
                     </div>
                     
                 </div>
@@ -57,22 +54,17 @@
                                 <ul id="menu-content2" class="menu-content collapse show">
                                     <!-- Single Item -->
                                     <li><a style= "color:black" href="{%url 'product_view'%}">All</a></li>
-                                    {% for i in category %}
+                                    {% for i in categories %}
                                     <li>
                                         <a style = "color:black" href="{% url 'product_view'%}?category={{i.id}}">{{ i.name }}</a>
                                         <ul class="sub-menu collapse" id="{{i.id}}" data-parent="#{{i.id}}">
-                                        {%for j in i.subcategory%}
+                                            
+                                        {% for j in i.subcategories %}
                                             <li><a style = "color:black" href="{% url 'product_view'%}?subcategory={{j.id}}">{{ j.name }}</a></li>
                                         {%endfor%}
                                         </ul>
                                     </li>
                                     {% endfor %}
-
-                                    <li >
-                                        <ul >
-                                        
-                                        </ul>
-                                    </li>
                                 </ul>
                             </div>
                         
@@ -96,19 +88,18 @@
                                 </div>
                             </div>
                         </div> -->
-
-            
                         <div class="widget brands mb-50">
-                            <!-- Widget Title 2 -->
                             <p class="widget-title2 mb-30">Brands</p>
-                            <div class="widget-desc">
-                                {%for b in brand%}
+                            <div style="margin-bottom: 20px;" class="widget-desc">
                                 <ul>
-                                    <li><a href="#">{{b.name}}</a></li>
+                                    {% for b in brand %}
+                                    <li {% if brand_filter == b.name %}class="active"{% endif %}><a href="?{% if category %}category={{ category }}{% if subcategory %}&{% endif %}{% endif %}{% if subcategory %}subcategory={{ subcategory }}{% endif %}&brand={{ b.name }}">{{ b.name }}</a></li>
+                                    {% endfor %}
                                 </ul>
-                                {%endfor%}
                             </div>
                         </div>
+                        
+                        
                     </div>
                 </div>
 
@@ -157,6 +148,7 @@
                                         </div>
                                         {%endif%} -->
                                         <!-- Favourite -->
+                                    {%if request.user_is_authenticated%}
                                         <div class="product-favourite">
                                             <!-- <a href="{% url 'add_to_wishlist' product.id %}" class="favme fa fa-heart"></a> -->
                                             <a href="#" class="favme fa fa-heart add-to-wishlist-btn" data-product-id="{{ product.id }}"></a>
@@ -164,6 +156,7 @@
 
 
                                         </div>
+                                        {%endif%}
                                     </div>
                         
                                     <!-- Product Description -->
@@ -231,9 +224,9 @@
 
 
         
-
-    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
         
+    <!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script> -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{% static 'js/script.js' %}"></script>
         
         

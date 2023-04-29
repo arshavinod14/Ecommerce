@@ -12,7 +12,7 @@ from twilio.rest import Client,TwilioException
 from django.views.decorators.cache import cache_control
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.postgres.search import SearchVector
-from django.http import JsonResponse
+from django.http import HttpResponseNotFound, JsonResponse
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
@@ -55,7 +55,28 @@ def index(request):
     else:
         banner = Banner.objects.all()
         products = Product.objects.all() 
-        context = {'banner': banner, 'products': products}
+        category = request.GET.get('category', None)
+        subcategory = request.GET.get('subcategory', None)
+        if category:
+            products_list = Product.objects.filter(category=request.GET.get('category'))
+
+        if subcategory:
+            products_list = Product.objects.filter(subcategory=request.GET.get('subcategory'))
+
+        category = Category.objects.all()
+        s = []
+        for i in category:
+            s.append({
+                'id': i.id,
+                'name': i.name,
+                'subcategories': SubCategory.objects.filter(category=i).values()
+            })
+        
+        context = {
+            'category': s,
+            'banner': banner,
+            'products': products
+        }
         return render(request, 'index.html', context)
 
         
@@ -66,7 +87,6 @@ def loginacc(request):
         return redirect(index)
 
     if request.method == 'POST':
-        # print("erger")
         form = LoginForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
@@ -86,7 +106,7 @@ def loginacc(request):
                 login(request, user)
                 guest_item = GuestCart.objects.filter(user_ref=sessionId).values()
                 for i in guest_item:
-                    print("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii:",i)
+                    # print("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii:",i)
                     i.pop('user_ref')
                     i['user'] = request.user
                     CartItems.objects.create(**i)
@@ -225,7 +245,7 @@ def sign_out(request):
     if request.user.is_authenticated:
         logout(request)
         print("LoggedOut")
-        # messages.success(request, 'Logged Out Successfully')
+        messages.success(request, 'Logged Out Successfully')
         return redirect(index)
 
 
@@ -233,9 +253,7 @@ def address(request):
     print("11111111111")
     if request.user.is_authenticated:
         print("22222222222222")
-        # ad = Address.objects.filter(user=request.user)
         print("33333333333")
-        # context = {'ad':ad}
         if request.method == 'POST':
             name = request.POST['name']
             phone = request.POST['phone']
@@ -247,7 +265,6 @@ def address(request):
             add = Address(user=request.user, name=name, phone=phone, email=email, address1=address1,
                         country=country, state=state, zip=zip)
             add.save()
-            # return redirect('check_out')
         return redirect('check_out')
     return redirect(index)
 
@@ -269,7 +286,7 @@ def profile(request):
             new_password = request.POST.get('new_password')
             confirm_password = request.POST.get('confirm_password')
 
-            # Update user profile information
+
             if (user.name != name) or (user.email != email):
                 user.name = name
                 user.email = email
@@ -321,7 +338,6 @@ def edit_address(request, id):
         })
 
 def update_address(request):
-    print('ddddddddddddddddddddddddd')
     if request.method == "POST":
         id = request.POST.get('id')
         name = request.POST.get('name')
@@ -364,14 +380,12 @@ def add_to_wishlist(request, id):
             return JsonResponse({'message': 'This product is already in your wishlist.'})
         else:
             wishlist_item = Wishlist.objects.create(product=product, user=request.user)
-            # messages.success(request, "Product added to your wishlist.")
         # remove messages from session after displaying them
         messages.get_messages(request)
         # Return a JSON response
         return JsonResponse({'message': 'Product added to your wishlist.'})
     else:
-        # Return an error response
-        return JsonResponse({'error': 'Please log in to add products to your wishlist.'})
+        messages.success(request, 'Please log in to add products to your wishlist.')
 
 
 
@@ -405,22 +419,64 @@ def remove_wishlist(request, id):
         messages.error(request, "Please log in to remove products from your wishlist.")
         return redirect('login')
 
+
 def search(request):
     search_query = request.GET.get('search')
+    category_id = request.GET.get('category')
+    subcategory_id = request.GET.get('subcategory')
+    brand_filter = request.GET.get('brand')
     if search_query:
-        search_vector = SearchVector('name', 'category__name', 'subcategory__name')
+        search_vector = SearchVector('name', 'category__name', 'subcategory__name','brand__name')
         search_query = SearchQuery(search_query, config='english')
         products = Product.objects.annotate(
             search=search_vector, 
             rank=SearchRank(search_vector, search_query)
         ).filter(search=search_query).order_by('-rank')
         count_p = products.count()
-        brand = Brand.objects.all()
-        category = Category.objects.all()
-        return render(request, 'products.html', {'products': products,'count_p':count_p,'brand':brand,'category':category})
+    else:
+        products = Product.objects.all()
+        count_p = products.count()
+    
+    if brand_filter:
+        products = products.filter(brand__name=brand_filter)
+    if category_id:
+        category = Category.objects.get(id=category_id)
+        products = products.filter(category=category)
+    else:
+        category = None
+    if subcategory_id:
+        subcategory = SubCategory.objects.get(id=subcategory_id)
+        products = products.filter(subcategory=subcategory)
+    else:
+        subcategory = None
+        
+    brand = Brand.objects.all()
+    categories = Category.objects.all()
+    s = []
+    for category in categories:
+        subcategories = SubCategory.objects.filter(category=category)
+        subcategory_list = [{
+            'id': subcategory.id,
+            'name': subcategory.name
+        } for subcategory in subcategories]
+        s.append({
+            'id': category.id,
+            'name': category.name,
+            'subcategories': subcategory_list
+        })
+    context = {'products': products,
+            'count_p': count_p,
+            'brand': brand,
+            'categories': s,
+            'category': category,
+            'subcategory': subcategory,
+            'request': request,
+            'url': request.GET,
+            'brand_filter': brand_filter}
+    return render(request, 'products.html', context)
 
-def handler404(request, exception):
-    return render(request, '404.html', status=404)
+
+
 
 
 def blog(request):

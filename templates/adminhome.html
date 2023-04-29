@@ -262,7 +262,7 @@
           </div>
         </div>
       </div>
-                
+      <canvas id="chartData" data-monthly="{{monthly}}"  data-daily="{{daily}}"></canvas>       
           
     </div>
 </div>
@@ -277,13 +277,15 @@
 
 <script>
   var ctx = document.getElementById('myChart1').getContext('2d');
+  let dailyData = $('#chartData').data('daily')
+  let days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
   var myChart1 = new Chart(ctx, {
       type: 'doughnut',
       data: {
-          labels: [{% for i in a %} '{{i.title}}', {% endfor %}],
+          labels:days,
   datasets: [{
-      label: 'Number of Products',
-      data: [{% for i in a %} {{ i.price }}, {% endfor %}],
+      label: 'Daily wise sales',
+      data: dailyData,
       backgroundColor: [
       'rgba(255, 99, 132, 1)',
       'rgba(54, 162, 235, 1)',
@@ -329,14 +331,18 @@
 
 
 <script>
+
   var ctx = document.getElementById('myChart').getContext('2d');
+  let months = ['January','February',' March','April','May','June','July','August','September','October','November','December']
+  let monthlyData = $('#chartData').data('monthly')
+  console.log(monthlyData)
   var myChart1 = new Chart(ctx, {
-      type: 'bar',
+      type: 'line',
       data: {
-          labels: [{% for i in a %} '{{i.title}}', {% endfor %}],
+          labels: months,
   datasets: [{
-      label: 'Number of Products',
-      data: [{% for i in a %} {{ i.price }}, {% endfor %}],
+      label: 'Monthly wise sales',
+      data:monthlyData,
       backgroundColor: [
       'rgba(255, 99, 132, 1)',
       'rgba(54, 162, 235, 1)',

@@ -1,7 +1,7 @@
 from django.urls import path
 from .import views
 
-handler404 = 'store.views.handler404'
+
 urlpatterns = [
     path("", views.index,name = 'home'), 
     path("login/",views.loginacc,name='login'),

@@ -289,11 +289,13 @@
                                 <!-- Hover Thumb -->
                                 <a href="{% url 'product_detail' product.id %}"><img class="hover-img" src="/media/{{product.image2}}" alt="product_image2"></a>
                                 <!-- Favourite -->
+                                {%if request.user_is_authenticated%}
                                 <div class="product-favourite">
                                     <!-- <a href="{% url 'add_to_wishlist' product.id %}" class="favme fa fa-heart"></a> -->
                                     <a href="#" class="favme fa fa-heart add-to-wishlist-btn" data-product-id="{{ product.id }}"></a>
                                     <span id="wishlist-message"></span>
                                 </div>
+                                {%endif%}
                             </div>
                             <!-- Product Description -->
                             <div class="product-description">
@@ -370,7 +372,7 @@
                         <!-- Footer Menu -->
                         <div class="footer_menu">
                             <ul>
-                                <li><a href="shop.html">Shop</a></li>
+                                <li><a href="{%url 'product_view'%}">Shop</a></li>
                                 <li><a href="{% url 'blog'%}">Blog</a></li>
                                 <li><a href="{% url 'contact'%}">Contact</a></li>
                             </ul>

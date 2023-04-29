@@ -79,8 +79,7 @@
                                 {% csrf_token %}
                                 <!-- <button type="submit" name="selected_address_id" value="{{ i.id }}" class="btn btn-primary">Select Address</button> -->
 
-                                <input id="ad" type="radio" name="address" value="{{ i.id }}" required
-                                    onclick="func1('{{i.id}}')" checked>
+                                <input id="ad" type="radio" name="address" value="{{ i.id }}" required onclick="func1('{{i.id}}')" checked>
                                 <label>Select Address</label>
 
                             </div>
@@ -397,7 +396,6 @@
             applyCoupon(couponCode, total_price); // Pass the total price to the function
         });
 
-
         $('#coupon-apply-form').submit(e => {
             e.preventDefault();
             console.log('submitted')
@@ -421,7 +419,5 @@
         })
 
     });
-
-    
 </script>
 {%endblock%}

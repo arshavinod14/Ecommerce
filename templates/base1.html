@@ -61,16 +61,17 @@
                         <ul>
                             <li><a href="#">Shop</a>
                                 <div class="megamenu">
-                                    {% for category in category %}
+                                    {% for category in categories %}
                                     <ul class="single-mega cn-col-4">
-                                        <li class="title"><a href="?category={{ category.id }}">{{ category.name }}</a></li>
+                                        <li class="title"><a href="{% url 'product_view' %}?category={{ category.id }}">{{ category.name }}</a></li>
+                            
                                         {% if category.subcategories %}
                                         <ul>
                                             {% for subcategory in category.subcategories %}
-                                                <li><a href="?category={{ category.id }}&subcategory={{ subcategory.id }}">{{ subcategory.name }}</a></li>
+                                                <li><a href="{% url 'product_view' %}?category={{ category.id }}&subcategory={{ subcategory.id }}">{{ subcategory.name }}</a></li>
                                             {% endfor %}
                                         </ul>
-                                        {% endif %}
+                                        {% endif %}    
                                     </ul>
                                     {% endfor %}
                                     <div class="single-mega cn-col-4">
@@ -78,6 +79,7 @@
                                     </div>
                                 </div>
                             </li>
+                            
                             
                             
                                 

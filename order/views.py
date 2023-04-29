@@ -8,7 +8,6 @@ from django.contrib import messages
 from django.utils import timezone
 from product.views import check_out
 import razorpay
-from store.views import index
 from .models import Order,OrderItem
 from product.models import CartItems, Coupon
 from store.models import Address,Account
@@ -16,9 +15,11 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.cache import cache_control
 
 
-# @cache_control(no_cache=True, must_revalidate=True,no_store=True)
+@cache_control(no_cache=True, must_revalidate=True,no_store=True)
 @login_required
 def place_order(request):
     print("qwwfwer",request.POST.get)
@@ -88,13 +89,6 @@ def order_detail(request):
     return render(request, 'order_details.html',context)  
 
 
-
-# def order_cancel(request, id):
-#     order = Order.objects.get(id=id)
-#     if order.status and order.delivery_status == 'P':
-#         Order.objects.filter(id=id).update(status=False, delivery_status='C')
-
-#     return redirect(order_detail)
 def order_cancel(request, id):
     try:
         order = Order.objects.get(id=id)
@@ -156,71 +150,6 @@ def invoice(request,id):
             'order_items':order_items,
         }
     return render(request,'invoice.html',context)
-
-# @csrf_exempt
-# def success(request):
-#     print("wwwdedfd")
-#     response = request.POST
-#     print(response)  
-#     params_dict = {
-#         'razorpay_payment_id': response['razorpay_payment_id'],
-#         'razorpay_order_id': response['razorpay_order_id'],
-#         'razorpay_signature': response['razorpay_signature']
-#     }
-    
-#     client = razorpay.Client(auth=("rzp_test_ZOq0MfvSYjUCuM", "ZyYHRwEp3cxBUpQndLnJKy9S"))
-#     try:
-#         client.utility.verify_payment_signature(params_dict)
-#         print("ffffffff",request.POST)
-#         neworder = Order()
-#         neworder.user = request.user
-#         print("ggggggggggggggg",request.session.get('address'))
-#         neworder.address = Address.objects.get(pk=request.session.get('address'))
-        
-#         neworder.payment_method = '2'
-
-#         now = timezone.now()
-#         ord2 = str(datetime.now()) + str(request.user.id) + str(random.randint(0, 100))
-#         ord1 = ord2.translate({ord(':'): None, ord('-'): None, ord(' '): None, ord('.'): None}) 
-#         neworder.order_id = ord1
-#         if not neworder.address:
-#             return redirect('check_out')
-
-
-#         # total_price = request.session.get('total_price', Decimal(0))  
-#         # print("total_price",total_price)
-#         # neworder.total_price = total_price
-#         neworder.save()
-
-
-#         neworderitems = CartItems.objects.filter(user=request.user)
-#         for item in neworderitems:
-#             OrderItem.objects.create(
-#                 order=neworder,
-#                 product=item.product,
-#                 product_price=item.unit_price * item.quantity,
-#                 quantity=item.quantity
-#             )
-
-#         CartItems.objects.filter(user=request.user).delete()
-#         return checking_confirm(request)
-#     except Exception as e:
-#         print("jjjjjjjjjjjjjjj",e)
-#         return render(request, 'checkout.html', context={'status': False})
-#     return render(request, 'checkout.html')
-
-# def get_add(request):
-#     print("wwqqqqqq")
-#     if request.method == 'POST':
-#         print("rrrrr")
-#         request.session['address'] = request.POST['address']
-#         print("dddddddddddddddddddddd",request.session['address'])
-#         return redirect('checkout')
-#     return check_out(request)
-
-
-from django.shortcuts import render, redirect, HttpResponse
-from django.core.exceptions import ObjectDoesNotExist
 
 @csrf_exempt
 def success(request):
@@ -295,56 +224,3 @@ def get_add(request):
 
 
 
-
-# def delete(request):
-#     Order.objects.get(id=1).delete()
-#     Order.objects.get(id=2).delete()
-#     Order.objects.get(id=3).delete()
-
-   
-#     return redirect(index)
-
-
-# from django.shortcuts import render, redirect
-# from .models import Coupon
-
-# def redeem_coupon(request):
-#     if request.method == 'POST':
-#         coupon_code = request.POST['coupon_code']
-#         try:
-#             coupon = Coupon.objects.get(code=coupon_code)
-#             if coupon.is_valid() and not coupon.is_expired() and coupon.has_usage_left():
-#                 # Check if the cart or order total meets the minimum purchase amount
-#                 # (Implement your own logic here based on your application)
-#                 # Example:
-#                 min_purchase_amount = coupon.min_purchase_amount
-#                 # cart_total = get_cart_total() or get_order_total()
-#                 # if cart_total >= min_purchase_amount:
-#                 #     Apply discount to the cart or order
-#                 #     discount = coupon.discount
-#                 #     cart.total -= (cart.total * discount / 100)
-#                 #     cart.save()
-#                 #     coupon.increment_usage()
-#                 #     return redirect('checkout_success')
-#                 # else:
-#                 #     return render(request, 'coupon/redeem.html', {'error_message': 'Minimum purchase amount not met.'})
-#             else:
-#                 return render(request, 'coupon/redeem.html', {'error_message': 'Coupon is invalid, expired, or has no usage left.'})
-#         except Coupon.DoesNotExist:
-#             return render(request, 'coupon/redeem.html', {'error_message': 'Coupon not found.'})
-#     else:
-#         return render(request, 'coupon/redeem.html')
-
-
-
-# <!-- coupon/redeem.html -->
-# <form method="post">
-#     {% csrf_token %}
-#     <input type="text" name="coupon_code" placeholder="Enter coupon code">
-#     <input type="number" name="min_purchase_amount" placeholder="Enter minimum purchase amount">
-#     <button type="submit">Redeem</button>
-# </form>
-
-# {% if error_message %}
-#     <p>{{ error_message }}</p>
-# {% endif %}

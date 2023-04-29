@@ -1,50 +1,52 @@
 import json
-from django.shortcuts import get_object_or_404, render,redirect
+from django.shortcuts import render,redirect
 from product.forms import *
 from .models import CartItems, Coupon, Product,Category, Size,GuestCart
 from store.views import loginacc
-from django.http import HttpResponse, JsonResponse
+from django.http import  JsonResponse
 from django.contrib import messages
 from django.db.models import Sum
 from decimal import Decimal
 from store.models import Address
-from order.models import Order,OrderItem
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 import razorpay
+from django.http import  JsonResponse, HttpResponseRedirect
+from django.urls import reverse
+
 
 
 def product_view(request):
-    if request.user.is_authenticated:
-        cart_items = CartItems.objects.filter(user=request.user)
-        count = cart_items.count()
-    else:
-        if not request.session.session_key:
-            request.session.create()
-        request.session['guest_key']=request.session.session_key
-        cart_items = GuestCart.objects.filter(user_ref = request.session['guest_key'])
-        count = cart_items.count()
-
+    if not request.session.session_key:
+        request.session.create()
+    request.session['guest_key'] = request.session.session_key
+    cart_items = GuestCart.objects.filter(user_ref=request.session['guest_key'])
+    count = cart_items.count()
 
     products_list = Product.objects.all()
-    category = request.GET.get('category',None)
-    request.session['category'] = category
-    subcategory = request.GET.get('subcategory',None)
-    request.session['subcategory'] = subcategory
-    if category:
-        products_list = Product.objects.filter(category=category)
-    if subcategory:
-        products_list = Product.objects.filter(subcategory=request.GET.get('subcategory'))
-        
-    paginator = Paginator(products_list, 5) # Show 10 products per page
+    category_filter = request.GET.get('category', None)
+    request.session['category'] = category_filter
+    subcategory_filter = request.GET.get('subcategory', None)
+    request.session['subcategory'] = subcategory_filter
+    if category_filter:
+        products_list = Product.objects.filter(category=category_filter)
+    if subcategory_filter:
+        products_list = products_list.filter(subcategory=subcategory_filter)
+
+    brand_filter = request.GET.get('brand', None)
+    request.session['brand'] = brand_filter
+    if brand_filter:
+        products_list = products_list.filter(brand__name=brand_filter)
+
+    paginator = Paginator(products_list, 5)  # Show 10 products per page
     page = request.GET.get('page')
     products = paginator.get_page(page)
 
-    category = Category.objects.all()
+    categories = Category.objects.all()
     s = []
-    for category in Category.objects.all():
+    for category in categories:
         subcategories = SubCategory.objects.filter(category=category)
         subcategory_list = [{
             'id': subcategory.id,
@@ -55,38 +57,31 @@ def product_view(request):
             'name': category.name,
             'subcategories': subcategory_list
         })
-
     size = Size.objects.all()
     brand = Brand.objects.all()
     count_p = products_list.count()
-    
-    
-    print("dddddddddddddd",request.GET)
+
     context = {
-        'category_url':category,
+        'category_url': categories,
         'request': request,
-        'url' : request.GET,
-        'category': s,
+        'url': request.GET,
+        'categories': s,
+        'category': category_filter or None,
         'products': products,
         'size': size,
         'count_p': count_p,
         'count': count,
-        'brand':brand,
+        'brand': brand,
+        'brand_filter': brand_filter,
     }
-    print(request.GET)
     return render(request, 'products.html', context)
 
-
 def single_product(request, id):
-    if request.user.is_authenticated:
-        cart_items = CartItems.objects.filter(user=request.user)
-        count = cart_items.count()
-    else:
-        if not request.session.session_key:
+    if not request.session.session_key:
             request.session.create()
-        request.session['guest_key']=request.session.session_key
-        cart_items = GuestCart.objects.filter(user_ref = request.session['guest_key'])
-        count = cart_items.count() 
+    request.session['guest_key']=request.session.session_key
+    cart_items = GuestCart.objects.filter(user_ref = request.session['guest_key'])
+    count = cart_items.count() 
 
     product = Product.objects.get(id=id)
     sizes = Size.objects.all()
@@ -145,10 +140,8 @@ def view_cart(request):
         count = cart_items.count()
         total_price = 0
         for item in cart_items:
-            # print(item.applied_coupon.code)
             total_price += item.total_price
-        print(cart_items)
-        
+
 
         # code = cart_items[0].applied_coupon.code if cart_items and cart_items[0].applied_coupon else 'Apply Coupon'
 
@@ -167,9 +160,7 @@ def view_cart(request):
 
 @csrf_exempt
 def update_quantity(request):
-    print("aaaaaaaa")
     if request.user.is_authenticated:
-        print('sssssssssssssss')
         item_id = request.POST.get('item_id')
         new_quantity = request.POST.get('new_quantity')
         item = CartItems.objects.get(id=item_id)
@@ -182,7 +173,6 @@ def update_quantity(request):
     
 
     else:
-        print("eeeeeeeeeeeeeeeeeeeeeeeeeeeee")
         item_id = request.POST.get('item_id')
         new_quantity = request.POST.get('new_quantity')
         item = GuestCart.objects.get(id=item_id)
@@ -193,15 +183,6 @@ def update_quantity(request):
         total_price = GuestCart.objects.filter(user_ref = request.session['guest_key']).aggregate(Sum('total_price'))
         return JsonResponse({ 'new_total_price': total_price['total_price__sum']})
     
-
-
-
-
-
-
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.urls import reverse
-
 
 def remove_cart(request, id):
     if request.user.is_authenticated:
@@ -241,8 +222,10 @@ def apply_coupon(request):
             discountAmount = (obj.total_price * Decimal(couponDetail.discount)) / 100
             # obj.total_price -= discountAmount
             obj.discount = discountAmount
+            obj.applied_coupon_id = couponDetail.id
             obj.save()
             total_price = obj.total_price - obj.discount
+            
 
         return JsonResponse({'message': 'Coupon has been applied.', 'total_price': total_price})
 
@@ -255,9 +238,7 @@ def check_out(request):
     total_price = 0
     discount = 0
     coupon =  request.session.get('coupon') if request.session.get('coupon') else "Apply coupon"
-    print("Coupon applied",coupon)
     new_total_price = 0
-
 
 
     cart_items = CartItems.objects.filter(user=request.user)
@@ -290,15 +271,11 @@ def check_out(request):
         
         total_price = new_total_price
 
-        print('apply coupon side', new_total_price)
         
         request.session["new_total_price"] = str(new_total_price)
-        
-
 
 
     order_currency = 'INR'
-    print("dddd",int(total_price)*100)
     client = razorpay.Client(
                         auth=('rzp_test_ZOq0MfvSYjUCuM', 'ZyYHRwEp3cxBUpQndLnJKy9S')
                     )
@@ -314,7 +291,6 @@ def changeQuantity(request):
         proId = request.POST.get('productId')
         qty = request.POST.get('qty')
         count = request.POST.get('count')
-        print(proId, qty, count)
 
 
 
@@ -322,28 +298,43 @@ def sort_products(request):
     sort_by = request.GET.get('sort_by')
     category = request.session.get('category') if request.session.get('category') else None
     subcategory = request.session.get('subcategory') if request.session.get('subcategory') else None
-    print(category)
+    brand_filter = request.session.get('brand') if request.session.get('brand') else None
     if sort_by == 'price_asc':
-        if(category):
+        if category:
             products = Product.objects.filter(category=category).order_by('price')
         elif subcategory:
             products = Product.objects.filter(subcategory=subcategory).order_by('price')
+        elif brand_filter:
+            products = Product.objects.filter(brand__name=brand_filter).order_by('price')
         else:
             products = Product.objects.order_by('price')
     elif sort_by == 'price_desc':
         if category:
             products = Product.objects.filter(category=category).order_by('-price')
-        elif subcategory :
+        elif subcategory:
             products = Product.objects.filter(subcategory=subcategory).order_by('-price')
+        elif brand_filter:
+            products = Product.objects.filter(brand__name=brand_filter).order_by('-price')
         else:
             products = Product.objects.order_by('-price')
     else:
-        products = Product.objects.all()
+        if category:
+            products = Product.objects.filter(category=category)
+        elif subcategory:
+            products = Product.objects.filter(subcategory=subcategory)
+        elif brand_filter:
+            products = Product.objects.filter(brand__name=brand_filter)
+        else:
+            products = Product.objects.all()
 
     count_p = products.count()
     brand = Brand.objects.all()
-    category = Category.objects.all()
-    context = {'products': products,'count_p':count_p,'brand':brand,'category':category}
+    context = {'products': products,
+            'count_p': count_p,
+            'brand': brand,
+            'request': request,
+            'url': request.GET,
+            'brand_filter': brand_filter}
     return render(request, 'products.html', context)
 
 

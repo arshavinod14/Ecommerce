@@ -50,7 +50,6 @@ class ProductForm(forms.ModelForm):
 #     class Meta:
 #         model = CartItems
 #         fields = ['product', 'quantity', 'size']
-
 #     def _init_(self, *args, **kwargs):
 #         super()._init_(*args, **kwargs)
 
